@@ -9,37 +9,12 @@ namespace BankApplication.Service
 {
         public class BankService
         {
-            private List<Bank> banks;
-            public BankService()
-            {
-                this.banks = new List<Bank>();
-            }
-            public string addBank(string bankname)
-            {
-                Bank bank = new Bank
-                {
-                    BankId = bankname.Substring(0, 3) + DateTime.UtcNow.ToString("dd-MM-yyyy"),
-                    BankName = bankname
-                };
-                this.banks.Add(bank);
-                //       BId++;
-                return bank.BankId;
-            }
-            public string createAccount(string bankId, string AccountName, int password, double initialbal)
-            {
-                Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-                if (bank is null)
-                    throw new IncorrectBankIdException();
-                string AccountNumber = AccountName.Substring(0, 3) + DateTime.UtcNow.ToString("dd-MM-yyyy");
-                Account account = new Account(AccountNumber, AccountName, password, initialbal);
-                bank.AccountsList.Add(account);
-                return account.AccountNumber;
-            }
+        Bank bank = new Bank();
             public bool Deposit(string bankId, double amount, string accountnumber, int pin)
             {
-                Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
+            /*    Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
                 if (bank is null)
-                    throw new IncorrectBankIdException();
+                    throw new IncorrectBankIdException();*/
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
                 if (account is null)
                     throw new IncorrectAccountNumberException();
@@ -57,9 +32,9 @@ namespace BankApplication.Service
             }
             public bool WithDraw(string bankId, double amount, string accountnumber, int pin)
             {
-                Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
+        /*        Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
                 if (bank is null)
-                    throw new IncorrectBankIdException();
+                    throw new IncorrectBankIdException(); */
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
                 if (account is null)
                     throw new IncorrectAccountNumberException();
@@ -86,20 +61,20 @@ namespace BankApplication.Service
             }
             public bool transferAmount(string senderbankId, string senderaccnumber, int pin, double amount, string receiverbankid, string receiveraccnumber)
             {
-                Bank senderbank = this.banks.SingleOrDefault(m => m.BankId == senderbankId);
+            /*    Bank senderbank = this.banks.SingleOrDefault(m => m.BankId == senderbankId);
                 if (senderbank is null)
-                    throw new IncorrectBankIdException();
-                var senderaccount = senderbank.AccountsList.SingleOrDefault(m => m.AccountNumber == senderaccnumber);
+                    throw new IncorrectBankIdException(); */
+                var senderaccount = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == senderaccnumber);
                 if (senderaccount is null)
                     throw new Exception("Account invalid");
                 if (senderaccount.Password == pin)
                 {
                     if (senderaccount.Balance > amount)
                     {
-                        Bank receiverbank = this.banks.SingleOrDefault(m => m.BankId == receiverbankid);
+                       /* Bank receiverbank = this.banks.SingleOrDefault(m => m.BankId == receiverbankid);
                         if (receiverbank is null)
-                            throw new IncorrectBankIdException();
-                        var receiveraccount = receiverbank.AccountsList.SingleOrDefault(m => m.AccountNumber == receiveraccnumber);
+                            throw new IncorrectBankIdException();*/
+                        var receiveraccount =bank.AccountsList.SingleOrDefault(m => m.AccountNumber == receiveraccnumber);
                         if (receiveraccount is null)
                             throw new Exception("Account invalid");
                         senderaccount.Balance -= amount;
@@ -122,9 +97,9 @@ namespace BankApplication.Service
             }
             public double GetBalance(string BankId, string accountnumber, int pin)
             {
-                Bank bank = this.banks.SingleOrDefault(m => m.BankId == BankId);
+        /*        Bank bank = this.banks.SingleOrDefault(m => m.BankId == BankId);
                 if (bank is null)
-                    throw new IncorrectBankIdException();
+                    throw new IncorrectBankIdException();*/
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
                 if (account is null)
                     throw new IncorrectAccountNumberException();
@@ -139,9 +114,9 @@ namespace BankApplication.Service
             }
             public List<Transaction> GetTransactionhistory(string bankId, string acnumber, int password)
             {
-                var bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
+      /*          var bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
                 if (bank is null)
-                    throw new IncorrectBankIdException();
+                    throw new IncorrectBankIdException();*/
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == acnumber);
                 if (account is null)
                     throw new IncorrectAccountNumberException();

@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace BankApplication
 {
-    class UserMenu
+    class CustomerUsermenu
     {
         public enum Features
         {
             AddBank = 1,
-            CreateAccount,
             Deposit,
             Withdraw,
             TransferAmount,
