@@ -12,206 +12,115 @@ namespace BankApplication
         {
             //Giving title to the console
             Console.Title = "Bank App";
-            while (true)
-            { 
-
-               printString("Enter Your Choice");
-               printString("1.Bank staff      ");
-               printString("2.customer        ");
-               printString("3.EXIT           ");
-               //displaying options
-                MainUsermenu.Choice choice = (MainUsermenu.Choice)Enum.Parse(typeof(MainUsermenu.Choice), Console.ReadLine());
-                switch (choice)
-                {
-                    case MainUsermenu.Choice.Bankstaff:
+            BankStaffActions bankstaffactions = new BankStaffActions();
+            bankstaffactions.addBank("SBI");
+            bankstaffactions.addBank("Union");
+            printString("Enter Your Choice");
+            printString("1.Bank staff      ");
+            printString("2.customer        ");
+            printString("3.EXIT           ");
+            //displaying options
+            MainUsermenu.Choice choice = (MainUsermenu.Choice)Enum.Parse(typeof(MainUsermenu.Choice), Console.ReadLine());
+            switch (choice)
+            {
+                case MainUsermenu.Choice.Bankstaff:
+                    {
+                        string bankid = GetUserInput("Enter bankid");
+                        string staffid = GetUserInput("Enter staffid for authentication");
+                        
+                        bool Validation = bankstaffactions.StaffValidate(bankid, staffid);
+                        if (Validation == true)
                         {
-                            BankStaffActions bankstaffactions = new BankStaffActions();
-                            printString("________________________________");
-                            printString("Enter Your Choice                ");
-                            printString("1.CreateAccount                  ");
-                            printString("2.AddNewAcceptedCurrency           ");
-                            printString("3.AddServiceChargesForSameBank     ");
-                            printString("4.AddServiceChargesForDifferentBank");
-                            printString("5.ViewTransactionHistoryOfAccount  ");
-                            printString("6.RevertTransaction                ");
-                            printString("_________________________________");
-                            BankStaffusermenu.StaffChoice staffChoice = (BankStaffusermenu.StaffChoice)Enum.Parse(typeof(BankStaffusermenu.StaffChoice), Console.ReadLine());
-                            switch (staffChoice)
+                            while (true)
                             {
-                                case BankStaffusermenu.StaffChoice.CreateAccount:
-                                    {
-                                        string bankid = GetUserInput("Enter the bankid ");
-                                        string AccountHolderName = GetUserInput("Enter account holder name");
-                                        int Password = GetUserInputAsInt("Enter password for setup:");
-                                        double Balance = GetUserInputAsDouble("Enter initial balance");
-                                        try
+                                printString("___________________________________");
+                                printString("Enter Your Choice                  ");
+                                printString("1.CreateAccount                    ");
+                                printString("2.AddNewAcceptedCurrency           ");
+                                printString("3.AddRTGSServiceChargesForSameBank ");
+                                printString("4.AddRTGSServiceChargesForOtherBank");
+                                printString("5.AddIMPSServiceChargesForSameBank ");
+                                printString("6.AddIMPSServiceChargesForOtherBank");
+                                printString("7.ViewTransactionHistoryOfAccount  ");
+                                printString("8.RevertTransaction                ");
+                                printString("9.Revert Transfer                  ");
+                                printString("10.Updateaccountpassword           ");
+                                printString("11.Delete Account                  ");
+                                printString("12.Exit                             ");
+                                printString("___________________________________");
+                                BankStaffusermenu.StaffChoice staffChoice = (BankStaffusermenu.StaffChoice)Enum.Parse(typeof(BankStaffusermenu.StaffChoice), Console.ReadLine());
+                                switch (staffChoice)
+                                {
+                                    case BankStaffusermenu.StaffChoice.CreateAccount:
                                         {
-                                            string AccountNumber = bankstaffactions.createAccount(bankid, AccountHolderName, Password, Balance);
-                                            printString($"Account created succesfully in bank with accountnumber {AccountNumber} in bank with bankid {bankid}");
-                                        }
-                                        catch (IncorrectBankIdException ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
+                                            string AccountHolderName = GetUserInput("Enter account holder name");
+                                            int Password = GetUserInputAsInt("Enter password for setup:");
+                                            double Balance = GetUserInputAsDouble("Enter initial balance");
+                                            try
+                                            {
+                                                string AccountNumber = bankstaffactions.createAccount(bankid, AccountHolderName, Password, Balance);
+                                                printString($"Account created succesfully in bank with accountnumber {AccountNumber} in bank with bankid {bankid}");
+                                            }
+                                            catch (IncorrectBankIdException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
 
-                                        break;
-                                    }
-                            }
-                            break;
-
-                        }
-
-                    case MainUsermenu.Choice.Customer:
-                        {
-                            printString("______________________________");
-                            printString("|ENTER YOUR CHOICE           |");
-                            printString("|1.Add Bank                  |");
-                            printString("|2.Create account            |");
-                            printString("|3.Deposit Amount            |");
-                            printString("|4.Withdraw amount           |");
-                            printString("|5.transfer amount           |");
-                            printString("|6.checkbalance              |");
-                            printString("|7.Transaction history       |");
-                            printString("|8.Exit                      |");
-                            printString("______________________________");
-                            BankService bankService = new BankService();
-                            CustomerUsermenu userMenu = new CustomerUsermenu();
-                            CustomerUsermenu.Features features = (CustomerUsermenu.Features)Enum.Parse(typeof(CustomerUsermenu.Features), Console.ReadLine());
-                            switch (features)
-                            {
-                                /*  case CustomerUsermenu.Features.AddBank:
-                                      {
-                                          String Bankname = GetUserInput("Enter bank name");
-                                          string bankid = bankService.addBank(Bankname);
-                                          printString($"Bank added successfully with bank id {bankid} and bankname {Bankname}");
-                                          break;
-                                      }*/
-                                case CustomerUsermenu.Features.Deposit:
-                                    {
-                                        string bankid = GetUserInput("Enter the bankid ");
-                                        string AccountNumber = GetUserInput("Enter account number");
-                                        double Amount = GetUserInputAsDouble("Enter amount");
-                                        int Password = GetUserInputAsInt("Enter password");
-                                        try
-                                        {
-                                            bankService.Deposit(bankid, Amount, AccountNumber, Password);
-                                            printString($"Amount{Amount} deposited in accountnumber {AccountNumber}");
+                                            break;
                                         }
-                                        catch (AmountNotSufficient ex)
+                                    case BankStaffusermenu.StaffChoice.AddNewAcceptedCurrency:
                                         {
-                                            printString(ex.Message);
+                                            string newAcceptedcurrency = GetUserInput("Enter new accepted currency");
+                                            bankstaffactions.UpdateAcceptedCurrency(bankid, newAcceptedcurrency);
+                                            printString($"New accepted currency is{newAcceptedcurrency}");
+                                            break;
                                         }
-                                        catch (IncorrectBankIdException ex)
+                                    case BankStaffusermenu.StaffChoice.RevertTransaction:
                                         {
-                                            printString(ex.Message);
+                                            string TransactionId = GetUserInput("Enter the transactionid");
+                                            bankstaffactions.revertTransaction(TransactionId);
+                                            printString($"Transaction with transactionid {TransactionId} is reverted");
+                                            break;
                                         }
-                                        catch (IncorrectPin ex)
+                                    case BankStaffusermenu.StaffChoice.UpdateSameBankRTGS:
                                         {
-                                            printString(ex.Message);
+                                            int newRTGS = GetUserInputAsInt("Enter newRTGS");
+                                            bankstaffactions.UpdateSameBankRTGS(bankid, newRTGS);
+                                            printString($"Bank RTGS service charge for same bank updated to {newRTGS} ");
+                                            break;
                                         }
-                                        catch (IncorrectAccountNumberException ex)
+                                    case BankStaffusermenu.StaffChoice.UpdateOtherBankRTGS:
                                         {
-                                            printString(ex.Message);
+                                            int newRTGS = GetUserInputAsInt("Enter newRTGS");
+                                            bankstaffactions.UpdateOtherBankRTGS(bankid, newRTGS);
+                                            printString($"Bank RTGS service charge for other bank updated to {newRTGS} ");
+                                            break;
                                         }
-                                        break;
-                                    }
-                                case CustomerUsermenu.Features.Withdraw:
-                                    {
-                                        string bankid = GetUserInput("Enter the bankid ");
-                                        string AccountNumber = GetUserInput("Enter Ac number");
-                                        double Amount = GetUserInputAsDouble("Enter amount");
-                                        int Password = GetUserInputAsInt("Enter pin: ");
-                                        try
+                                    case BankStaffusermenu.StaffChoice.UpdateOtherBankIMPS:
                                         {
-                                            bankService.WithDraw(bankid, Amount, AccountNumber, Password);
-                                            printString($"Amount{Amount}withdrawn from accountnumber{AccountNumber}");
+                                            int newIMPS = GetUserInputAsInt("Enter newIMPS");
+                                            bankstaffactions.UpdateOtherBankIMPS(bankid, newIMPS);
+                                            printString($"Bank IMPS service charge for other bank updated to {newIMPS} ");
+                                            break;
                                         }
-                                        catch (AmountNotSufficient ex)
+                                    case BankStaffusermenu.StaffChoice.UpdateSameBankIMPS:
                                         {
-                                            printString(ex.Message);
+                                            int newIMPS = GetUserInputAsInt("Enter newIMPS");
+                                            bankstaffactions.UpdateSameBankIMPS(bankid, newIMPS);
+                                            printString($"Bank IMPS service charge for same bank updated to {newIMPS} ");
+                                            break;
                                         }
-                                        catch (IncorrectBankIdException ex)
+                                    case BankStaffusermenu.StaffChoice.RevertTransfer:
                                         {
-                                            printString(ex.Message);
+                                            string SenderTransactionId = GetUserInput("Enter Sendertransactionid");
+                                            string ReceiverTransactionId = GetUserInput("Enter Receivertransactionid");
+                                            bankstaffactions.revertTransfer(SenderTransactionId, ReceiverTransactionId);
+                                            break;
                                         }
-                                        catch (IncorrectPin ex)
+                                    case BankStaffusermenu.StaffChoice.ViewTransactionHistoryOfAccount:
                                         {
-                                            printString(ex.Message);
-                                        }
-                                        catch (IncorrectAccountNumberException ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        break;
-                                    }
-
-                                case CustomerUsermenu.Features.CheckBalance:
-                                    {
-                                        string bankid = GetUserInput("Enter the bankid ");
-                                        string AccountNumber = GetUserInput("enter acnumber");
-                                        int Password = GetUserInputAsInt("Enter pin");
-                                        try
-                                        {
-                                            printString($"{bankService.GetBalance(bankid, AccountNumber, Password)}");
-                                        }
-                                        catch (AmountNotSufficient ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        catch (IncorrectBankIdException ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        catch (IncorrectPin ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        catch (IncorrectAccountNumberException ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        break;
-                                    }
-                                case CustomerUsermenu.Features.TransferAmount:
-                                    {
-                                        string senderbankid = GetUserInput("Enter the bankid ");
-                                        string SenderAccountNumber = GetUserInput("entersender account number");
-                                        int SenderPassword = GetUserInputAsInt("Enter pin");
-                                        string receiverbankid = GetUserInput("Enter the receiver bankid");
-                                        string ReceiverAccountNumber = GetUserInput("enter receiver account number");
-                                        double Amount = GetUserInputAsDouble("Enter amount");
-                                        try
-                                        {
-                                            bankService.transferAmount(senderbankid, SenderAccountNumber, SenderPassword, Amount, receiverbankid, ReceiverAccountNumber);
-                                            printString("Amount transferred succesfully");
-                                        }
-                                        catch (AmountNotSufficient ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        catch (IncorrectBankIdException ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        catch (IncorrectPin ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        catch (IncorrectAccountNumberException ex)
-                                        {
-                                            printString(ex.Message);
-                                        }
-                                        break;
-                                    }
-
-                                case CustomerUsermenu.Features.Transactionhistory:
-                                    {
-                                        string bankid = GetUserInput("Enter the bankid ");
-                                        string AccountNumber = GetUserInput("enter acnumber");
-                                        int Password = GetUserInputAsInt("Enter Password");
-                                        try
-                                        {
-                                            List<Transaction> transactions = bankService.GetTransactionhistory(bankid, AccountNumber, Password);
+                                            string accountnumber = GetUserInput("Enter account number");
+                                            List<Transaction> transactions = bankstaffactions.GetTransactionhistory(bankid, accountnumber);
                                             foreach (Transaction transaction in transactions)
                                             {
                                                 printString(transaction.TransactionId + " " + transaction.Type);
@@ -221,38 +130,217 @@ namespace BankApplication
                                                     printString("debited- " + transaction.Amount);
                                                 printString("");
                                             }
+
+                                            break;
                                         }
-                                        catch (IncorrectBankIdException ex)
+                                    case BankStaffusermenu.StaffChoice.UpdateAccount:
                                         {
-                                            printString(ex.Message);
+                                            string accountnumber = GetUserInput("Enter account number");
+                                            int newpassword = GetUserInputAsInt("Enter new password for update");
+                                            bankstaffactions.updateAccountPassword(bankid, accountnumber, newpassword);
+                                            break;
                                         }
-                                        catch (IncorrectPin ex)
+                                    case BankStaffusermenu.StaffChoice.DeleteAccount:
                                         {
-                                            printString(ex.Message);
+                                            string accountnumber = GetUserInput("Enter account number");
+                                            bankstaffactions.deleteAccount(bankid, accountnumber);
+                                            break;
                                         }
-                                        catch (IncorrectAccountNumberException ex)
+                                    case BankStaffusermenu.StaffChoice.Exit:
                                         {
-                                            printString(ex.Message);
+                                            Environment.Exit(0);
+                                            break;
                                         }
-
-
-                                        break;
-                                    }
-
-
-                                case CustomerUsermenu.Features.Exit:
-                                    {
-                                        Environment.Exit(0);
-                                        break;
-                                    }
-
+                                }
                             }
-                            break;
-
                         }
-                }
+                        else
+                            printString("Incorrect Id entered try to relogin");
+                        break;
+                    }
 
+                case MainUsermenu.Choice.Customer:
+                    {
+                        int Password = GetUserInputAsInt("Enter password");
+                        string bankid = GetUserInput("Enter the bankid ");
+                        string AccountNumber = GetUserInput("enter acnumber");
+                        BankService bankService = new BankService();
+                        bool validate = bankService.CustomerValidate(bankid, AccountNumber, Password);
+                        if (validate)
+                        {
+                            while (true)
+                            {
+                                printString("______________________________");
+                                printString("|ENTER YOUR CHOICE           |");
+                                printString("|1.Add Bank                  |");
+                                printString("|2.Create account            |");
+                                printString("|3.Deposit Amount            |");
+                                printString("|4.Withdraw amount           |");
+                                printString("|5.transfer amount           |");
+                                printString("|6.checkbalance              |");
+                                printString("|7.Transaction history       |");
+                                printString("|8.Exit                      |");
+                                printString("______________________________");
+                                CustomerUsermenu userMenu = new CustomerUsermenu();
+                                CustomerUsermenu.Features features = (CustomerUsermenu.Features)Enum.Parse(typeof(CustomerUsermenu.Features), Console.ReadLine());
+                                switch (features)
+                                {
+                                    case CustomerUsermenu.Features.Deposit:
+                                        {
+                                            double Amount = GetUserInputAsDouble("Enter amount");
+                                            try
+                                            {
+                                                bankService.Deposit(bankid, Amount, AccountNumber, Password);
+                                                printString($"Amount{Amount} deposited in accountnumber {AccountNumber}");
+                                            }
+                                            catch (AmountNotSufficient ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectBankIdException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectPin ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectAccountNumberException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            break;
+                                        }
+                                    case CustomerUsermenu.Features.Withdraw:
+                                        {
+                                            double Amount = GetUserInputAsDouble("Enter amount");
+                                            try
+                                            {
+                                                bankService.WithDraw(bankid, Amount, AccountNumber, Password);
+                                                printString($"Amount{Amount}withdrawn from accountnumber{AccountNumber}");
+                                            }
+                                            catch (AmountNotSufficient ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectBankIdException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectPin ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectAccountNumberException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            break;
+                                        }
+
+                                    case CustomerUsermenu.Features.CheckBalance:
+                                        {
+                                            try
+                                            {
+                                                printString($"{bankService.GetBalance(bankid, AccountNumber, Password)}");
+                                            }
+                                            catch (AmountNotSufficient ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectBankIdException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectPin ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectAccountNumberException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            break;
+                                        }
+                                    case CustomerUsermenu.Features.TransferAmount:
+                                        {
+                                            string receiverbankid = GetUserInput("Enter the receiver bankid");
+                                            string ReceiverAccountNumber = GetUserInput("enter receiver account number");
+                                            double Amount = GetUserInputAsDouble("Enter amount");
+                                            string paymentmode = GetUserInput("Enter payment mode");
+                                            try
+                                            {
+                                                bankService.transferAmount(bankid, AccountNumber, Password, Amount, receiverbankid, ReceiverAccountNumber,paymentmode);
+                                                printString("Amount transferred succesfully");
+                                            }
+                                            catch (AmountNotSufficient ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectBankIdException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectPin ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectAccountNumberException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            break;
+                                        }
+
+                                    case CustomerUsermenu.Features.Transactionhistory:
+                                        {
+                                            try
+                                            {
+                                                List<Transaction> transactions = bankService.GetTransactionhistory(bankid, AccountNumber, Password);
+                                                foreach (Transaction transaction in transactions)
+                                                {
+                                                    printString(transaction.TransactionId + " " + transaction.Type);
+                                                    if (transaction.Type == TransactionType.transactionType.Deposit)
+                                                        printString("credited+" + transaction.Amount);
+                                                    else
+                                                        printString("debited- " + transaction.Amount);
+                                                    printString("");
+                                                }
+                                            }
+                                            catch (IncorrectBankIdException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectPin ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+                                            catch (IncorrectAccountNumberException ex)
+                                            {
+                                                printString(ex.Message);
+                                            }
+
+
+                                            break;
+                                        }
+
+
+                                    case CustomerUsermenu.Features.Exit:
+                                        {
+                                            Environment.Exit(0);
+                                            break;
+                                        }
+
+                                }
+                            }
+                        }
+                        else
+                            printString("Enter incorrect login credentials");
+                        break;
+                    }
             }
+
+
             static string GetUserInput(string message)
             {
                 Console.WriteLine(message);
@@ -278,3 +366,4 @@ namespace BankApplication
         }
     }
 }
+

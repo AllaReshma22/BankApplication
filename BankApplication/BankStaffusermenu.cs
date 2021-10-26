@@ -12,10 +12,16 @@ namespace BankApplication
         {
             CreateAccount=1,
             AddNewAcceptedCurrency,
-            AddServiceChargesForSameBank,
-            AddServiceChargesForDifferentBank,
+            UpdateAccount,
+            DeleteAccount,
             ViewTransactionHistoryOfAccount,
+            UpdateSameBankRTGS,
+            UpdateOtherBankRTGS,
+            UpdateSameBankIMPS,
+            UpdateOtherBankIMPS,
             RevertTransaction,
+            RevertTransfer,
+            Exit,
         }
     }
 }

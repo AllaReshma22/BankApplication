@@ -7,125 +7,99 @@ using BankApplication.Models.Exceptions;
 
 namespace BankApplication.Service
 {
-        public class BankService
+        public class BankService:Validations
         {
-        Bank bank = new Bank();
             public bool Deposit(string bankId, double amount, string accountnumber, int pin)
             {
-            /*    Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-                if (bank is null)
-                    throw new IncorrectBankIdException();*/
+               Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
-                if (account is null)
-                    throw new IncorrectAccountNumberException();
-                if (account.Password == pin)
-                {
                     account.Balance += amount;
                     TransactionType.transactionType t = (TransactionType.transactionType)1;
-                    string TransactionId = "Txn" + " " + bankId + " " + accountnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
+                    string TransactionId = "D" + " " + bankId + " " + accountnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
                     Transaction transaction = new Transaction(accountnumber, amount, t, TransactionId, DateTime.Now);
-                    account.Transactions.Add(transaction);
-                }
-                else
-                    throw new IncorrectPin();
                 return true;
             }
             public bool WithDraw(string bankId, double amount, string accountnumber, int pin)
             {
-        /*        Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-                if (bank is null)
-                    throw new IncorrectBankIdException(); */
-                var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
-                if (account is null)
-                    throw new IncorrectAccountNumberException();
-                else
-                {
-                    if (account.Password == pin)
-                    {
+                Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
+                var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);               
                         if (account.Balance < amount)
                             throw new AmountNotSufficient();
                         else
                         {
-
                             account.Balance -= amount;
                             TransactionType.transactionType t = (TransactionType.transactionType)2;
-                            string TransactionId = "Txn" + " " + bankId + " " + accountnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
+                            string TransactionId = "W" + " " + bankId + " " + accountnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
                             Transaction transaction = new Transaction(accountnumber, amount, t, TransactionId, DateTime.Now);
                             account.Transactions.Add(transaction);
                         }
-                    }
-                    else
-                        throw new IncorrectPin();
-                }
                 return true;
             }
-            public bool transferAmount(string senderbankId, string senderaccnumber, int pin, double amount, string receiverbankid, string receiveraccnumber)
+            public bool transferAmount(string senderbankId, string senderaccnumber, int pin, double amount, string receiverbankid, string receiveraccnumber,string paymentmode)
             {
-            /*    Bank senderbank = this.banks.SingleOrDefault(m => m.BankId == senderbankId);
-                if (senderbank is null)
-                    throw new IncorrectBankIdException(); */
-                var senderaccount = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == senderaccnumber);
-                if (senderaccount is null)
-                    throw new Exception("Account invalid");
-                if (senderaccount.Password == pin)
-                {
+                Bank senderbank = this.banks.SingleOrDefault(m => m.BankId == senderbankId);
+                var senderaccount = senderbank.AccountsList.SingleOrDefault(m => m.AccountNumber == senderaccnumber);
                     if (senderaccount.Balance > amount)
                     {
-                       /* Bank receiverbank = this.banks.SingleOrDefault(m => m.BankId == receiverbankid);
+                        Bank receiverbank = this.banks.SingleOrDefault(m => m.BankId == receiverbankid);
                         if (receiverbank is null)
-                            throw new IncorrectBankIdException();*/
-                        var receiveraccount =bank.AccountsList.SingleOrDefault(m => m.AccountNumber == receiveraccnumber);
+                            throw new IncorrectBankIdException();
+                        var receiveraccount =receiverbank.AccountsList.SingleOrDefault(m => m.AccountNumber == receiveraccnumber);
                         if (receiveraccount is null)
                             throw new Exception("Account invalid");
-                        senderaccount.Balance -= amount;
+                     if (paymentmode == "RTGS")
+                     {
+                        if (senderbankId == receiverbankid)
+                        senderaccount.Balance -= (amount + (amount * senderbank.SameBankRTGS / 100));
+                        else
+                        senderaccount.Balance -= (amount + (amount * senderbank.OtherBankRTGS / 100));
+                     }
+                     else
+                     {
+                        if (senderbankId == receiverbankid)
+                        senderaccount.Balance -= (amount + (amount * senderbank.SameBankIMPS / 100));
+                       else
+                        senderaccount.Balance -= (amount + (amount * senderbank.OtherBankIMPS / 100));
+                     } 
+
+                    
                         receiveraccount.Balance += amount;
                         TransactionType.transactionType t = (TransactionType.transactionType)1;
-                        string TransactionId = "Txn" + " " + senderbankId + " " + senderaccnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
+                        string TransactionId = "T" + " " + senderbankId + " " + senderaccnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
                         Transaction transaction = new Transaction(senderaccnumber, amount, t, TransactionId, DateTime.Now);
                         senderaccount.Transactions.Add(transaction);
                         TransactionType.transactionType t1 = (TransactionType.transactionType)2;
-                        string TransactionId1 = "Txn" + " " + receiverbankid + " " + receiveraccnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
+                        string TransactionId1 = "T" + " " + receiverbankid + " " + receiveraccnumber + " " + DateTime.UtcNow.ToString("dd-MM-yyyy");
                         Transaction transaction1 = new Transaction(receiveraccnumber, amount, t1, TransactionId1, DateTime.Now);
                         receiveraccount.Transactions.Add(transaction1);
                     }
                     else
                         throw new AmountNotSufficient();
-                }
-                else
-                    throw new IncorrectPin();
                 return true;
             }
             public double GetBalance(string BankId, string accountnumber, int pin)
             {
-        /*        Bank bank = this.banks.SingleOrDefault(m => m.BankId == BankId);
-                if (bank is null)
-                    throw new IncorrectBankIdException();*/
+                Bank bank = this.banks.SingleOrDefault(m => m.BankId == BankId);
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
-                if (account is null)
-                    throw new IncorrectAccountNumberException();
-                else
-                {
-                    if (account.Password == pin)
-                        return account.Balance;
-
-                    else
-                        throw new Exception("Invalid pin number");
-                }
+                return account.Balance;                 
             }
             public List<Transaction> GetTransactionhistory(string bankId, string acnumber, int password)
             {
-      /*          var bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-                if (bank is null)
-                    throw new IncorrectBankIdException();*/
-                var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == acnumber);
-                if (account is null)
-                    throw new IncorrectAccountNumberException();
-                if (account.Password == password)
-                    return account.Transactions;
-                else
-                    throw new IncorrectPin();
+               var bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
+               var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == acnumber);
+               return account.Transactions;
             }
-        }
+            public List<Transaction> GetTransactionhistory(string bankId, string acnumber)
+            {
+               var bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
+              if (bank is null)
+                throw new IncorrectBankIdException();
+              var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == acnumber);
+              if (account is null)
+                throw new IncorrectAccountNumberException();
+              return account.Transactions;
+             }
+    }
 
     }
 

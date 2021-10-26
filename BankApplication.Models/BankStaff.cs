@@ -10,5 +10,6 @@ namespace BankApplication.Models
     {
         public string StaffName { get;set; }
         public int StaffId { get; set; }
+        public int StaffPIN { get; set; }
     }
 }
