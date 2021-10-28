@@ -8,126 +8,120 @@ using BankApplication.Models.Exceptions;
 
 namespace BankApplication.Service
 {
-    public class BankStaffActions:Validations
-    {   
-        public string createAccount(string bankId, string AccountName, int password, double initialbal)
+    public class BankStaffActions:IServiceInterface
+    {
+        static int AccountNumber=1000;
+        public string AddBank(string bankName)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            string AccountNumber = AccountName.Substring(0, 3) + DateTime.UtcNow.ToString("dd-MM-yyyy");
-            Account account = new Account(AccountNumber, AccountName, password, initialbal);
-            bank.AccountsList.Add(account);
-            return account.AccountNumber;
+            if (Datastore.Banks.Any(m => m.BankName == bankName))
+            {
+                throw new DuplicateBankNameException();
+            }
+            Bank bank = new Bank
+            {
+                BankId = bankName.Substring(0, 3) + DateTime.UtcNow.ToString("ddMMyyyy"),
+                BankName = bankName,
+                StaffId = bankName.Substring(0, 3) + "staff"
+
+            };
+            Datastore.Banks.Add(bank);
+
+            return bank.BankId;
         }
-        public bool deleteAccount(string bankId,string accountnumber)
+        public  string CreateAccount(string bankId, string accountName, int password, double initialBal)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
-            if (account is null)
-                throw new IncorrectAccountNumberException();
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            string accountId = accountName.Substring(0, 3) + DateTime.UtcNow.ToString("ddMMyyyy");
+            int accountNumber = AccountNumber;
+            Account account = new Account(accountNumber,accountId, accountName, password, initialBal);
+            bank.AccountsList.Add(account);
+            AccountNumber++;
+            return account.AccountId;
+        }
+        public  bool DeleteAccount(string bankId,string accountId)
+        {
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
             bank.AccountsList.Remove(account);
             return true;
         }
-        public int updateAccountPassword(string bankId,string accountnumber,int newpassword)
+        public  int UpdateAccountPassword(string bankId,string accountId,int newPassword)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
-            if (account is null)
-                throw new IncorrectAccountNumberException();
-
-            account.Password = newpassword;
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
+            account.Password = newPassword;
             return account.Password;
         }
-        public bool revertTransaction(string Transactionid)
+        public  bool RevertTransaction(string transactionId ,string bankId,string accountId)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == Transactionid.Substring(2,13));
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == Transactionid.Substring(16,13));
-            if (account is null)
-                throw new IncorrectAccountNumberException();
-            var Transaction = account.Transactions.SingleOrDefault(m => m.TransactionId == Transactionid);
-            if (Transactionid.Substring(0, 1) == "D")
-                account.Balance -= Transaction.Amount;
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId ==bankId);
+            var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
+            var transaction = account.Transactions.SingleOrDefault(m => m.TransactionId == transactionId);
+            if (transactionId.Substring(transactionId.Length-1) == "D")
+                account.Balance -= transaction.Amount;
             else
-                account.Balance += Transaction.Amount;
+                account.Balance += transaction.Amount;
             return true;
         }
-        public bool revertTransfer(string senderTransactionId,string receiverTransactionId)
+        public  bool RevertTransfer(string senderTransactionId,string receiverTransactionId,string senderBankId,string senderAccountId,string receiverBankId,string receiverAccountId)
         {
-            Bank senderbank= this.banks.SingleOrDefault(m => m.BankId == senderTransactionId.Substring(2, 13));
+            Bank senderbank= Datastore.Banks.SingleOrDefault(m => m.BankId == senderBankId);
             if (senderbank is null)
                 throw new IncorrectBankIdException();
-            var senderaccount = senderbank.AccountsList.SingleOrDefault(m => m.AccountNumber == senderTransactionId.Substring(16, 13));
+            var senderaccount = senderbank.AccountsList.SingleOrDefault(m => m.AccountId == senderAccountId);
             if (senderaccount is null)
                 throw new IncorrectAccountNumberException();
-            var Transaction = senderaccount.Transactions.SingleOrDefault(m => m.TransactionId == senderTransactionId);
-            senderaccount.Balance += Transaction.Amount;
-            Bank receiverbank = this.banks.SingleOrDefault(m => m.BankId == receiverTransactionId.Substring(2, 13));
+            var transaction = senderaccount.Transactions.SingleOrDefault(m => m.TransactionId == senderTransactionId);
+            senderaccount.Balance += transaction.Amount;
+            Bank receiverbank = Datastore.Banks.SingleOrDefault(m => m.BankId ==receiverBankId);
             if (receiverbank is null)
                 throw new IncorrectBankIdException();
-            var receiveraccount = receiverbank.AccountsList.SingleOrDefault(m => m.AccountNumber == receiverTransactionId.Substring(16, 13));
+            var receiveraccount = receiverbank.AccountsList.SingleOrDefault(m => m.AccountId == receiverAccountId);
             if (receiveraccount is null)
                 throw new IncorrectAccountNumberException();
-            var Transaction1 = receiveraccount.Transactions.SingleOrDefault(m => m.TransactionId == receiverTransactionId);
-            receiveraccount.Balance -= Transaction.Amount;
+            var transaction1 = receiveraccount.Transactions.SingleOrDefault(m => m.TransactionId == receiverTransactionId);
+            receiveraccount.Balance -= transaction1.Amount;
             return true;
 
         }
-        public bool UpdateSameBankRTGS(string bankid,int newRTGS)
+        public  bool UpdateSameBankRTGS(string bankId,int newRTGS)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankid);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            bank.SameBankRTGS = newRTGS;
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            bank.SameBankRTGSCharges = newRTGS;
             return true;
         }
-        public bool UpdateSameBankIMPS(string bankid, int newIMPS)
+        public  bool UpdateSameBankIMPS(string bankId, int newIMPS)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankid);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            bank.SameBankIMPS = newIMPS;
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            bank.SameBankIMPSCharges = newIMPS;
             return true;
         }
-        public bool UpdateOtherBankIMPS(string bankid, int newIMPS)
+        public  bool UpdateOtherBankIMPS(string bankId, int newIMPS)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankid);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            bank.OtherBankIMPS = newIMPS;
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            bank.OtherBankIMPSCharges = newIMPS;
             return true;
         }
-        public bool UpdateOtherBankRTGS(string bankid, int newRTGS)
+        public  bool UpdateOtherBankRTGS(string bankId, int newRTGS)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankid);
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             if (bank is null)
                 throw new IncorrectBankIdException();
-            bank.OtherBankIMPS = newRTGS;
+            bank.OtherBankIMPSCharges = newRTGS;
             return true;
         }
-        public bool UpdateAcceptedCurrency(string bankid,string NewAcceptedCurrency)
+        public  bool AddAcceptedCurrency(string bankId,string newAcceptedCurrency,double multiplier)
         {
-            Bank bank = this.banks.SingleOrDefault(m => m.BankId == bankid);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            bank.AcceptedCurrency = NewAcceptedCurrency;
+            Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            Datastore.Currency.Add(newAcceptedCurrency, multiplier);
+            
             return true;
 
         }
-        public List<Transaction> GetTransactionhistory(string bankId, string acnumber)
+        public  List<Transaction> GetTransactionHistory(string bankId, string accountId)
         {
-            var bank = this.banks.SingleOrDefault(m => m.BankId == bankId);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == acnumber);
-            if (account is null)
-                throw new IncorrectAccountNumberException();
+            var bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
+            var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
             return account.Transactions;
         }
 

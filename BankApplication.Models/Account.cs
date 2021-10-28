@@ -8,20 +8,22 @@ namespace BankApplication.Models
 {
     public class Account
     {
-        public Account(string accountNumber, string accountHolderName, int password, double balance)
+        public Account(int accountNumber,string accountid, string accountHolderName, int password, double balance)
         {
             AccountNumber = accountNumber;
+            AccountId = accountid;
             AccountHolderName = accountHolderName;
             Password = password;
             Balance = balance;
             Transactions = new List<Transaction>();
         }
 
-        public string AccountNumber { get; set; }
+        public int AccountNumber { get; set; }
         public string AccountHolderName { get; set; }
 
         public int Password { get; set; }
         public double Balance { get; set; }
+        public string AccountId { get; set; }
 
         public List<Transaction> Transactions { get; set; }
     }

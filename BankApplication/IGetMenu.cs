@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace BankApplication
 {
-    class MainUsermenu
+    interface IGetMenu
     {
-        public enum Choice
+        void GetMenu(string id)
         {
-            Bankstaff=1,
-            Customer,
-            Exit
-    
+
+        }
+        void GetMenu(string bankId,string accountId,int password)
+        {
+
         }
     }
 }

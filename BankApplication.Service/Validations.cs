@@ -10,41 +10,22 @@ namespace BankApplication.Service
 {
    public class Validations
     {
-        protected List<Bank> banks;
-        public Validations()
+        public bool StaffValidate(string bankId, string staffId)
         {
-            this.banks = new List<Bank>();
-        }
-        public string addBank(string bankname)
-        {
-            Bank bank = new Bank
-            {
-                BankId = bankname.Substring(0, 3) + DateTime.UtcNow.ToString("dd-MM-yyyy"),
-                BankName = bankname,
-                staffId= bankname.Substring(0, 3)+"staff"
-
-            };
-            this.banks.Add(bank);
-
-            return bank.BankId;
-        }
-        
-        public bool StaffValidate(string bankid, string staffid)
-        {
-            var bank = this.banks.SingleOrDefault(m => m.BankId == bankid);
+            var bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             if (bank is null)
                 throw new IncorrectBankIdException();
-            if (bank.staffId == staffid)
+            if (bank.StaffId == staffId)
                 return true;
             else
                 return false;           
         }
-        public bool CustomerValidate(string bankid, string accountnumber,int password)
+        public bool CustomerValidate(string bankId, string accountId,int password)
         {
-            var bank = this.banks.SingleOrDefault(m => m.BankId == bankid);
+            var bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             if (bank is null)
                 throw new IncorrectBankIdException();
-            var account = bank.AccountsList.SingleOrDefault(m => m.AccountNumber == accountnumber);
+            var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
             if (account is null)
                 throw new IncorrectAccountNumberException();
             if (account.Password == password)
@@ -52,7 +33,6 @@ namespace BankApplication.Service
             else
                 throw new IncorrectPin();           
         }
-
     }
 }
 

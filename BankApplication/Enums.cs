@@ -6,11 +6,29 @@ using System.Threading.Tasks;
 
 namespace BankApplication
 {
-    class BankStaffusermenu
+    class Enums
     {
-        public enum StaffChoice
+        public enum MainEnum
         {
-            CreateAccount=1,
+            AddBank=1,
+            Bankstaff,
+            Customer,
+            Exit,
+    
+        }
+        public enum CustomerEnum
+        {
+            Deposit=1,
+            WithDraw,
+            TransferAmount,
+            CheckBalance,
+            Transactionhistory,
+            Exit,
+        }
+        public enum StaffEnum
+        {
+            
+            CreateAccount = 1,
             AddNewAcceptedCurrency,
             UpdateAccount,
             DeleteAccount,
