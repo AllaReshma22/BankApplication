@@ -8,7 +8,7 @@ namespace BankApplication.Models
 {
     public class Account
     {
-        public Account(int accountNumber,string accountid, string accountHolderName, int password, double balance)
+        public Account(int accountNumber,string accountid, string accountHolderName, int password, decimal balance)
         {
             AccountNumber = accountNumber;
             AccountId = accountid;
@@ -22,7 +22,7 @@ namespace BankApplication.Models
         public string AccountHolderName { get; set; }
 
         public int Password { get; set; }
-        public double Balance { get; set; }
+        public decimal Balance { get; set; }
         public string AccountId { get; set; }
 
         public List<Transaction> Transactions { get; set; }

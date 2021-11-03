@@ -10,7 +10,7 @@ namespace BankApplication.Service
 {
    public class Validations
     {
-        public bool StaffValidate(string bankId, string staffId)
+        public static bool StaffValidate(string bankId, string staffId)
         {
             var bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             if (bank is null)
@@ -20,7 +20,7 @@ namespace BankApplication.Service
             else
                 return false;           
         }
-        public bool CustomerValidate(string bankId, string accountId,int password)
+        public  static bool CustomerValidate(string bankId, string accountId,int password)
         {
             var bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             if (bank is null)

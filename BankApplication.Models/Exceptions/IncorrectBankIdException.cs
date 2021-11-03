@@ -8,6 +8,5 @@ namespace BankApplication.Models.Exceptions
 {
     public class IncorrectBankIdException : Exception
     {
-
     }
 }

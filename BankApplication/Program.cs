@@ -4,97 +4,99 @@ using BankApplication.Models;
 using System.Linq;
 using System.Collections.Generic;
 using BankApplication.Models.Exceptions;
+using BankApplication.Models.Enums;
 namespace BankApplication
 {
      class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             //Giving title to the console
             Console.Title = "Bank App";
-            Validations validation = new Validations();
             while (true)
             {
-                Displays.MainChoiceDisplay();
-                //displaying options
-                Enums.MainEnum choice = (Enums.MainEnum)Enum.Parse(typeof(Enums.MainEnum), Console.ReadLine());
-                switch (choice)
+                StandardMessages.MainChoiceDisplay();
+                //displaying options              
+                switch ((LoginType)Enum.Parse(typeof(LoginType), Console.ReadLine()))
                 {
-                    case Enums.MainEnum.AddBank:
+                    case LoginType.AddBank:
                         {
-                            string bankName = Displays.GetUserInput("Enter Bank name");
-                            IServiceInterface serviceInterface = new BankStaffActions();
+                            string bankName = StandardMessages.GetUserInput("Enter Bank name");
+                            IBankStaffServiceInterface serviceInterface = new BankStaffService();
                             string bankId =serviceInterface.AddBank(bankName);
-                            Displays.PrintString($"Bank is succesfully created with bankid {bankId}");
+                            StandardMessages.PrintString($"Bank is succesfully created with bankid {bankId}");
                             break;
                         }
-                    case Enums.MainEnum.Bankstaff:
+                    case LoginType.Bankstaff:
                         {
-                            string bankId = Displays.GetUserInput("Enter bankid");
-                            string staffId = Displays.GetUserInput("Enter staffid for authentication");
+                            string bankId = StandardMessages.GetUserInput("Enter bankid");
+                            string staffId = StandardMessages.GetUserInput("Enter staffid for authentication");
+                            IGetMenu getMenu = new BankStaffOptions();
+                            StaffValidateAgain:
                             try
                             {
-                                bool Validation = validation.StaffValidate(bankId, staffId);
+                                
+                                bool Validation = Validations.StaffValidate(bankId, staffId);
                                 if (Validation == true)
-                                {
-                                    IGetMenu getMenu = new BankStaffOptions();
                                     getMenu.GetMenu(bankId);
-                                }
                                 else
-                                    Displays.PrintString("Incorrect Id entered try to relogin");
+                                    StandardMessages.PrintString("Incorrect Id entered try to relogin");
                             }
-                            catch(IncorrectBankIdException ex)
+                            catch(IncorrectBankIdException)
                             {
-                                Displays.PrintString(ex.Message);
+                                bankId = StandardMessages.GetUserInput("Incorrect Bank Id entered\nPlease try to re enter bank id");
+                                goto StaffValidateAgain;
                             }
-                            catch(IncorrectStaffIdException ex)
+                            catch(IncorrectStaffIdException)
                             {
-                                Displays.PrintString(ex.Message);
+                              staffId= StandardMessages.GetUserInput("StaffId you have entered is incorrect\nso,try to re enter staff id");
+                              goto StaffValidateAgain;
                             }
                             break;
                         }
 
-                    case Enums.MainEnum.Customer:
+                    case LoginType.Customer:
                         {
-                            BankService bankService = new BankService();
-                            string bankName = Displays.GetUserInput("Enter Bank name");
-                            string bankId = Displays.GetUserInput("Enter the Bankid ");
-                            string accountId= Displays.GetUserInput("enter AccountId");
-                            int password = Displays.GetUserInputAsInt("Enter password");
+                            string bankId = StandardMessages.GetUserInput("Enter the Bankid ");
+                            string accountId= StandardMessages.GetUserInput("enter AccountId");
+                            int password = StandardMessages.GetUserInputAsInt("Enter password");
+                            IGetMenu getMenu = new CustomerOptions();
+                            CustomerValidateAgain:
                             try
                             {
-                                bool validate = validation.CustomerValidate(bankId, accountId, password);
-                                if (validate == true)
-                                {
-                                    IGetMenu getMenu = new CustomerOptions();
-                                     getMenu.GetMenu( bankId, accountId, password);
-                                }
+                                bool validate = Validations.CustomerValidate(bankId, accountId, password);
+                                if (validate == true)     
+                                     getMenu.GetMenu( bankId, accountId, password);                               
                                 else
-                                    Displays.PrintString("Enter incorrect login credentials");
-                              
+                                    StandardMessages.PrintString("Enter incorrect login credentials");                             
                             }
-                            catch (IncorrectBankIdException ex)
+                            catch (IncorrectBankIdException)
                             {
-                                Displays.PrintString(ex.Message);
+
+                                bankId = StandardMessages.GetUserInput("Incorrect Bank Id entered\nPlease try to re enter bank id");
+                                goto CustomerValidateAgain;
+
                             }
-                            catch (IncorrectAccountNumberException ex)
+                            catch (IncorrectAccountNumberException)
                             {
-                                Displays.PrintString(ex.Message);
+                                accountId=StandardMessages.GetUserInput("AccountNumber you have entered is invalid \n Please try to reenter account number");
+                                goto CustomerValidateAgain;
                             }
-                            catch(IncorrectPin ex)
+                            catch(IncorrectPin)
                             {
-                                Displays.PrintString(ex.Message);
+                                password=StandardMessages.GetUserInputAsInt("Password you have entered is incorrect\nTry to renter password");
+                                goto CustomerValidateAgain;
                             }
                             break;
    
                         }
-                    case Enums.MainEnum.Exit:
+                    case LoginType.Exit:
                         {
                             Environment.Exit(0);
                             break;
                         }
                     default:
-                        Displays.PrintString("Enter valid number from 1-4");
+                        StandardMessages.PrintString("Enter valid number from 1-4");
                         break;
                 }
 

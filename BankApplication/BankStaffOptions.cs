@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BankApplication.Models;
 using BankApplication.Service;
 using BankApplication.Models.Exceptions;
+using BankApplication.Models.Enums;
 
 namespace BankApplication
 {
@@ -13,116 +14,116 @@ namespace BankApplication
     {
         public void GetMenu(string bankId)
         {
-            IServiceInterface serviceInterface = new BankStaffActions();
+            IBankStaffServiceInterface serviceInterface = new BankStaffService();
+            ICommonServiceInterface commonServiceInterface = new BankStaffService();
             int count = 0;
             while (count == 0)
             {
 
-                Displays.BankStaffChoiceDisplay();
-                Enums.StaffEnum staffChoice = (Enums.StaffEnum)Enum.Parse(typeof(Enums.StaffEnum), Console.ReadLine());
-                switch (staffChoice)
+                StandardMessages.BankStaffChoiceDisplay();
+                switch ((StaffEnum)Enum.Parse(typeof(StaffEnum), Console.ReadLine()))
                 {
-                    case Enums.StaffEnum.CreateAccount:
+                    case StaffEnum.CreateAccount:
                         {
-                            string accountHolderName = Displays.GetUserInput("Enter account holder name");
-                            int password = Displays.GetUserInputAsInt("Enter 4 digit password for setup:");
-                            double balance = Displays.GetUserInputAsDouble("Enter initial balance");
+                            string accountHolderName = StandardMessages.GetUserInput("Enter account holder name");
+                            int password = StandardMessages.GetUserInputAsInt("Enter 4 digit password for setup:");
+                            decimal balance = StandardMessages.GetUserInputAsDecimal("Enter initial balance");
                             string accountId = serviceInterface.CreateAccount(bankId, accountHolderName, password, balance);
-                            Displays.PrintString($"Account created succesfully in bank with accountnumber {accountId} in bank with bankid {bankId}");
+                            StandardMessages.PrintString($"Account created succesfully in bank with accountnumber {accountId} in bank with bankid {bankId}");
                             break;
                         }
-                    case Enums.StaffEnum.AddNewAcceptedCurrency:
+                    case StaffEnum.AddNewAcceptedCurrency:
                         {
-                            string newAcceptedCurrency = Displays.GetUserInput("Enter new accepted currency ");
-                            double multiplier = Displays.GetUserInputAsDouble("Enter its multiplier to convert to INR");
+                            string newAcceptedCurrency = StandardMessages.GetUserInput("Enter new accepted currency ");
+                            decimal multiplier = StandardMessages.GetUserInputAsDecimal("Enter its multiplier to convert to INR");
                             serviceInterface.AddAcceptedCurrency(bankId, newAcceptedCurrency, multiplier);
-                            Displays.PrintString($"New accepted currency is{newAcceptedCurrency}");
+                            StandardMessages.PrintString($"New accepted currency is{newAcceptedCurrency}");
                             break;
                         }
-                    case Enums.StaffEnum.RevertTransaction:
+                    case StaffEnum.RevertTransaction:
                         {
-                            string transactionId = Displays.GetUserInput("Enter the transactionid");
-                            string accountId = Displays.GetUserInput("Enter the accountid");
+                            string transactionId = StandardMessages.GetUserInput("Enter the transactionid");
+                            string accountId = StandardMessages.GetUserInput("Enter the accountid");
                             serviceInterface.RevertTransaction(transactionId,bankId,accountId);
-                            Displays.PrintString($"Transaction with transactionid {transactionId} is reverted");
+                            StandardMessages.PrintString($"Transaction with transactionid {transactionId} is reverted");
                             break;
                         }
-                    case Enums.StaffEnum.UpdateSameBankRTGS:
+                    case StaffEnum.UpdateSameBankRTGS:
                         {
-                            int newRTGS = Displays.GetUserInputAsInt("Enter newRTGS");
+                            decimal newRTGS = StandardMessages.GetUserInputAsDecimal("Enter newRTGS");
                             serviceInterface.UpdateSameBankRTGS(bankId, newRTGS);
-                            Displays.PrintString($"Bank RTGS service charge for same bank updated to {newRTGS} ");
+                            StandardMessages.PrintString($"Bank RTGS service charge for same bank updated to {newRTGS} ");
                             break;
                         }
-                    case Enums.StaffEnum.UpdateOtherBankRTGS:
+                    case StaffEnum.UpdateOtherBankRTGS:
                         {
-                            int newRTGS = Displays.GetUserInputAsInt("Enter newRTGS");
+                            decimal newRTGS = StandardMessages.GetUserInputAsDecimal("Enter newRTGS");
                             serviceInterface.UpdateOtherBankRTGS(bankId, newRTGS);
-                            Displays.PrintString($"Bank RTGS service charge for other bank updated to {newRTGS} ");
+                            StandardMessages.PrintString($"Bank RTGS service charge for other bank updated to {newRTGS} ");
                             break;
                         }
-                    case Enums.StaffEnum.UpdateOtherBankIMPS:
+                    case StaffEnum.UpdateOtherBankIMPS:
                         {
-                            int newIMPS = Displays.GetUserInputAsInt("Enter newIMPS");
+                            decimal newIMPS = StandardMessages.GetUserInputAsDecimal("Enter newIMPS");
                             serviceInterface.UpdateOtherBankIMPS(bankId, newIMPS);
-                            Displays.PrintString($"Bank IMPS service charge for other bank updated to {newIMPS} ");
+                            StandardMessages.PrintString($"Bank IMPS service charge for other bank updated to {newIMPS} ");
                             break;
                         }
-                    case Enums.StaffEnum.UpdateSameBankIMPS:
+                    case StaffEnum.UpdateSameBankIMPS:
                         {
-                            int newIMPS = Displays.GetUserInputAsInt("Enter newIMPS");
+                            decimal newIMPS = StandardMessages.GetUserInputAsDecimal("Enter newIMPS");
                             serviceInterface.UpdateSameBankIMPS(bankId, newIMPS);
-                            Displays.PrintString($"Bank IMPS service charge for same bank updated to {newIMPS} ");
+                            StandardMessages.PrintString($"Bank IMPS service charge for same bank updated to {newIMPS} ");
                             break;
                         }
-                    case Enums.StaffEnum.RevertTransfer:
+                    case StaffEnum.RevertTransfer:
                         {
-                            string senderTransactionId = Displays.GetUserInput("Enter Sendertransactionid");
-                            string receiverTransactionId = Displays.GetUserInput("Enter Receivertransactionid");
-                            string senderBankId = Displays.GetUserInput("Enter the receiver bankid");
-                            string senderAccountId = Displays.GetUserInput("enter receiver accountid");
-                            string receiverBankId = Displays.GetUserInput("Enter the receiver bankid");
-                            string receiverAccountId= Displays.GetUserInput("enter receiver accountid");
+                            string senderTransactionId = StandardMessages.GetUserInput("Enter Sendertransactionid");
+                            string receiverTransactionId = StandardMessages.GetUserInput("Enter Receivertransactionid");
+                            string senderBankId = StandardMessages.GetUserInput("Enter the receiver bankid");
+                            string senderAccountId = StandardMessages.GetUserInput("enter receiver accountid");
+                            string receiverBankId = StandardMessages.GetUserInput("Enter the receiver bankid");
+                            string receiverAccountId= StandardMessages.GetUserInput("enter receiver accountid");
                             serviceInterface.RevertTransfer(senderTransactionId, receiverTransactionId,senderBankId,senderAccountId,receiverBankId,receiverAccountId);
                             break;
                         }
-                    case Enums.StaffEnum.ViewTransactionHistoryOfAccount:
+                    case StaffEnum.ViewTransactionHistoryOfAccount:
                         {
-                            string accountId = Displays.GetUserInput("Enter accountid");
-                            List<Transaction> transactions =serviceInterface.GetTransactionHistory(bankId, accountId);
+                            string accountId = StandardMessages.GetUserInput("Enter accountid");
+                            List<Transaction> transactions =commonServiceInterface.GetTransactionHistory(bankId, accountId);
                             foreach (Transaction transaction in transactions)
                             {
-                                Displays.PrintString(transaction.TransactionId + " " + transaction.Type);
-                                if (transaction.Type == TransactionType.transactionType.Deposit)
-                                    Displays.PrintString("credited+" + transaction.Amount);
+                                StandardMessages.PrintString(transaction.TransactionId + " " + transaction.Type);
+                                if (transaction.Type == TransactionType.Deposit)
+                                    StandardMessages.PrintString("credited+" + transaction.Amount);
                                 else
-                                    Displays.PrintString("debited- " + transaction.Amount);
-                                Displays.PrintString("");
+                                    StandardMessages.PrintString("debited- " + transaction.Amount);
+                                StandardMessages.PrintString("");
                             }
 
                             break;
                         }
-                    case Enums.StaffEnum.UpdateAccount:
+                    case StaffEnum.UpdateAccount:
                         {
-                            string accountId = Displays.GetUserInput("Enter account number");
-                            int newpassword = Displays.GetUserInputAsInt("Enter new 4 digit password for update");
+                            string accountId = StandardMessages.GetUserInput("Enter account number");
+                            int newpassword = StandardMessages.GetUserInputAsInt("Enter new 4 digit password for update");
                             serviceInterface.UpdateAccountPassword(bankId, accountId, newpassword);
                             break;
                         }
-                    case Enums.StaffEnum.DeleteAccount:
+                    case StaffEnum.DeleteAccount:
                         {
-                            string accountId = Displays.GetUserInput("Enter accountid");
+                            string accountId = StandardMessages.GetUserInput("Enter accountid");
                             serviceInterface.DeleteAccount(bankId,accountId);
                             break;
                         }
-                    case Enums.StaffEnum.Exit:
+                    case StaffEnum.Exit:
                         {
                             count = 1;
                             break;
                         }
 
                     default:
-                        Displays.PrintString("Enter valid number from 1-12");
+                        StandardMessages.PrintString("Enter valid number from 1-12");
                         break;
                 }
             }

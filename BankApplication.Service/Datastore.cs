@@ -10,7 +10,7 @@ namespace BankApplication.Service
     public class Datastore
     {
         public static List<Bank> Banks = new List<Bank>();
-        public static Dictionary<string,double> Currency = new Dictionary<string, double>() { { "INR", 1 } } ;
+        public static Dictionary<string,decimal> Currency = new Dictionary<string, decimal>() { { "INR", 1 } } ;
     }
 }
 

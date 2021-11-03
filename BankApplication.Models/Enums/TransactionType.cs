@@ -4,14 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BankApplication.Models
+namespace BankApplication.Models.Enums
 {
-    public class TransactionType
+    public enum TransactionType
     {
-        public enum transactionType
-        {
             Deposit = 1,
             Withdraw,
-        }
     }
+   
 }

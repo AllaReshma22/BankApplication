@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankApplication
 {
-    public class Displays
+    public class StandardMessages
     {
         public static void MainChoiceDisplay()
         {
@@ -54,13 +54,32 @@ namespace BankApplication
         }
         public static int GetUserInputAsInt(string message)
         {
-            return int.Parse(GetUserInput(message));
+            Console.WriteLine(message);
+            Start:
+            string input = Console.ReadLine();
+            bool IsAllDigits = int.TryParse(input, out int i);
+            if (IsAllDigits == true)
+                return int.Parse(input);
+            else
+            {
+                Console.WriteLine("You have entered in incorrect format\nEnter in numbers only");
+                goto Start;
+            }
         }
 
-       public  static double GetUserInputAsDouble(string message)
+       public  static decimal GetUserInputAsDecimal(string message)
         {
             Console.WriteLine(message);
-            return double.Parse(Console.ReadLine());
+            Start:
+            string input = Console.ReadLine();
+            bool IsAllDigits = decimal.TryParse(input, out decimal i);
+            if (IsAllDigits == true)
+                return decimal.Parse(input);
+            else
+            {
+                Console.WriteLine("You have entered in incorrect format\nEnter in numbers only");
+                goto Start;
+            }
         }
         public static int PrintString(string str)
         {

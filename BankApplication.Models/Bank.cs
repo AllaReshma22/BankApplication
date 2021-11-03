@@ -9,11 +9,11 @@ namespace BankApplication.Models
         public string BankId { get; set; }
         public string BankName { get; set; }
         public string StaffId{ get; set; }
-        public string AcceptedCurrency { get; set; }
-        public int SameBankRTGSCharges { get; set; }
-        public int SameBankIMPSCharges { get; set; }
-        public int OtherBankRTGSCharges { get; set; }
-        public int OtherBankIMPSCharges{ get; set; }
+        public string DefaultCurrency { get; set; }
+        public decimal SameBankRTGSCharges { get; set; }
+        public decimal SameBankIMPSCharges { get; set; }
+        public decimal OtherBankRTGSCharges { get; set; }
+        public decimal OtherBankIMPSCharges{ get; set; }
         public Bank()
         {
             AccountsList = new List<Account>();
@@ -21,7 +21,7 @@ namespace BankApplication.Models
             SameBankRTGSCharges = 0;
             OtherBankIMPSCharges = 6;
             OtherBankRTGSCharges = 2;
-            AcceptedCurrency = "INR";
+            DefaultCurrency = "INR";
         }
     }
 }

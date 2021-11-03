@@ -8,7 +8,7 @@ using BankApplication.Models.Exceptions;
 
 namespace BankApplication.Service
 {
-    public class BankStaffActions:IServiceInterface
+    public class BankStaffService:ICommonServiceInterface,IBankStaffServiceInterface
     {
         static int AccountNumber=1000;
         public string AddBank(string bankName)
@@ -28,7 +28,7 @@ namespace BankApplication.Service
 
             return bank.BankId;
         }
-        public  string CreateAccount(string bankId, string accountName, int password, double initialBal)
+        public  string CreateAccount(string bankId, string accountName, int password, decimal initialBal)
         {
             Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             string accountId = accountName.Substring(0, 3) + DateTime.UtcNow.ToString("ddMMyyyy");
@@ -45,7 +45,7 @@ namespace BankApplication.Service
             bank.AccountsList.Remove(account);
             return true;
         }
-        public  int UpdateAccountPassword(string bankId,string accountId,int newPassword)
+        public static int UpdateAccountPassword(string bankId,string accountId,int newPassword)
         {
             Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
@@ -84,25 +84,25 @@ namespace BankApplication.Service
             return true;
 
         }
-        public  bool UpdateSameBankRTGS(string bankId,int newRTGS)
+        public static bool UpdateSameBankRTGS(string bankId,int newRTGS)
         {
             Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             bank.SameBankRTGSCharges = newRTGS;
             return true;
         }
-        public  bool UpdateSameBankIMPS(string bankId, int newIMPS)
+        public static bool UpdateSameBankIMPS(string bankId, int newIMPS)
         {
             Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             bank.SameBankIMPSCharges = newIMPS;
             return true;
         }
-        public  bool UpdateOtherBankIMPS(string bankId, int newIMPS)
+        public static bool UpdateOtherBankIMPS(string bankId, int newIMPS)
         {
             Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             bank.OtherBankIMPSCharges = newIMPS;
             return true;
         }
-        public  bool UpdateOtherBankRTGS(string bankId, int newRTGS)
+        public static bool UpdateOtherBankRTGS(string bankId, int newRTGS)
         {
             Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             if (bank is null)
@@ -110,7 +110,7 @@ namespace BankApplication.Service
             bank.OtherBankIMPSCharges = newRTGS;
             return true;
         }
-        public  bool AddAcceptedCurrency(string bankId,string newAcceptedCurrency,double multiplier)
+        public   static bool AddAcceptedCurrency(string bankId,string newAcceptedCurrency,decimal multiplier)
         {
             Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
             Datastore.Currency.Add(newAcceptedCurrency, multiplier);

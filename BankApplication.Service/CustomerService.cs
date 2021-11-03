@@ -4,26 +4,26 @@ using System.Linq;
 using BankApplication;
 using BankApplication.Models;
 using BankApplication.Models.Exceptions;
+using BankApplication.Models.Enums;
 
 namespace BankApplication.Service
 {
-        public class BankService:IServiceInterface
+        public class CustomerService:ICustomerServiceInterface,ICommonServiceInterface
         {
             static int TransactionCount = 1;
-            public double Deposit(string bankId, double amount,string currencyType, string accountId, int pin)
+            public decimal Deposit(string bankId, decimal amount,string currencyType, string accountId, int pin)
             {
                Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
                var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
-               double multiplier = Datastore.Currency[currencyType];
-               account.Balance += amount*multiplier;
-               TransactionType.transactionType t = (TransactionType.transactionType)1;
+               decimal multiplier = Datastore.Currency[currencyType];
+               account.Balance += amount*multiplier;              
                string TransactionId = "Txn" + " " + bankId + " " + accountId + " " + DateTime.UtcNow.ToString("ddMMyyyy")+TransactionCount+"D";
-               Transaction transaction = new Transaction(accountId, amount, t, TransactionId, DateTime.Now);
+               Transaction transaction = new Transaction(accountId, amount, TransactionType.Deposit,TransactionId, DateTime.Now);
                TransactionCount++;
                account.Transactions.Add(transaction);
                return amount*multiplier;
             }
-            public bool WithDraw(string bankId, double amount, string accountId, int pin)
+            public bool WithDraw(string bankId, decimal amount, string accountId, int pin)
             {
                 Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);               
@@ -32,15 +32,14 @@ namespace BankApplication.Service
                         else
                         {
                             account.Balance -= amount;
-                            TransactionType.transactionType t = (TransactionType.transactionType)2;
                             string TransactionId = "Txn" + " " + bankId + " " + accountId + " " + DateTime.UtcNow.ToString("ddMMyyyy")+TransactionCount+"W";
-                            Transaction transaction = new Transaction(accountId, amount, t, TransactionId, DateTime.Now);
+                            Transaction transaction = new Transaction(accountId, amount, TransactionType.Withdraw, TransactionId, DateTime.Now);
                             account.Transactions.Add(transaction);
                             TransactionCount++;
                         }
                 return true;
             }
-            public bool TransferAmount(string senderBankId, string senderAccountId, int pin, double amount, string receiverBankId, string receiverAccountId,string paymentMode)
+            public bool TransferAmount(string senderBankId, string senderAccountId, int pin, decimal amount, string receiverBankId, string receiverAccountId,string paymentMode)
             {
                 Bank senderBank = Datastore.Banks.SingleOrDefault(m => m.BankId == senderBankId);
                 var senderAccount = senderBank.AccountsList.SingleOrDefault(m => m.AccountId == senderAccountId);
@@ -67,13 +66,11 @@ namespace BankApplication.Service
                             senderAccount.Balance -= (amount + (amount * senderBank.OtherBankIMPSCharges / 100));
                         }                   
                         receiveraccount.Balance += amount;
-                        TransactionType.transactionType t = (TransactionType.transactionType)1;
                         string TransactionId = "Txn" + " " + senderBankId + " " + senderAccountId + " " + DateTime.UtcNow.ToString("ddMMyyyy")+TransactionCount+"T";
-                        Transaction transaction = new Transaction(senderAccountId, amount, t, TransactionId, DateTime.Now);
+                        Transaction transaction = new Transaction(senderAccountId, amount, TransactionType.Withdraw, TransactionId, DateTime.Now);
                         senderAccount.Transactions.Add(transaction);
-                        TransactionType.transactionType t1 = (TransactionType.transactionType)2;
                         string TransactionId1 = "Txn" + " " + receiverBankId + " " + receiverAccountId + " " + DateTime.UtcNow.ToString("ddMMyyyy")+TransactionCount+"T";
-                        Transaction transaction1 = new Transaction(receiverAccountId, amount, t1, TransactionId1, DateTime.Now);
+                        Transaction transaction1 = new Transaction(receiverAccountId, amount,TransactionType.Deposit, TransactionId1, DateTime.Now);
                         receiveraccount.Transactions.Add(transaction1);
                         TransactionCount++;
                     }
@@ -81,7 +78,7 @@ namespace BankApplication.Service
                         throw new AmountNotSufficient();
                 return true;
             }
-            public double GetBalance(string BankId, string accountId, int pin)
+            public decimal GetBalance(string BankId, string accountId, int pin)
             {
                 Bank bank = Datastore.Banks.SingleOrDefault(m => m.BankId == BankId);
                 var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
