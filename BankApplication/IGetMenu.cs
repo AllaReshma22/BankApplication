@@ -12,7 +12,7 @@ namespace BankApplication
         {
 
         }
-        void GetMenu(string bankId,string accountId,int password)
+        void GetMenu(string accountId,int password)
         {
 
         }

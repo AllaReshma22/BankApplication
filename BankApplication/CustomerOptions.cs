@@ -6,15 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 using BankApplication.Models.Exceptions;
 using BankApplication.Models.Enums;
+using BankApplication.Models.Models;
 using BankApplication.Service;
+using BankApplication.Service.Interfaces;
 
 namespace BankApplication
 {
     public class CustomerOptions:IGetMenu
     {
-        public void GetMenu( string bankId, string accountId, int password)
+        public void GetMenu(string accountId, int password)
         {
-            ICustomerServiceInterface serviceInterface = new CustomerService();
+            var bankAppContext = new BankAppContext();
+            ICustomerServiceInterface serviceInterface = new CustomerService(bankAppContext);
             int count = 0;
             while (count == 0)
             {
@@ -23,15 +26,9 @@ namespace BankApplication
                 {
                     case CustomerEnum.Deposit:
                         {
-                            foreach(KeyValuePair<string,decimal> kvp in Datastore.Currency)
-                            {
-                                StandardMessages.PrintString($"Currency={kvp.Key}  MultiplierRate with INR={kvp.Value}");
-                            }
-                            string currencyType = StandardMessages.GetUserInput("Select the type of currency to be deposited");
-
-                            decimal amount = StandardMessages.GetUserInputAsDecimal("Enter amount");                          
-                             decimal effectiveAmount=serviceInterface.Deposit(bankId, amount,currencyType, accountId, password);
-                             StandardMessages.PrintString($"Amount{effectiveAmount} deposited in accountnumber {accountId}");                           
+                            decimal amount = StandardMessages.GetUserInputAsDecimal("Enter amount");
+                            serviceInterface.Deposit(accountId, amount);
+                            StandardMessages.PrintString($"Amount{amount} deposited in accountnumber {accountId}");
                             break;
                         }
                     case CustomerEnum.WithDraw:
@@ -39,49 +36,38 @@ namespace BankApplication
                             decimal amount = StandardMessages.GetUserInputAsDecimal("Enter amount");
                             try
                             {
-                               serviceInterface.WithDraw(bankId, amount, accountId, password);
-                               StandardMessages.PrintString($"Amount{amount}withdrawn from accountnumber{accountId}");
+                                serviceInterface.WithDraw(accountId, amount);
+                                StandardMessages.PrintString($"Amount{amount}withdrawn from accountnumber{accountId}");
                             }
-                            catch (AmountNotSufficient )
+                            catch (AmountNotSufficient)
                             {
                                 StandardMessages.PrintString("Amount not sufficient");
                             }
-                            
+
                             break;
                         }
 
                     case CustomerEnum.CheckBalance:
                         {
-                          StandardMessages.PrintString($"{serviceInterface.GetBalance(bankId, accountId, password)}");
-                          break;
+                            StandardMessages.PrintString($"{serviceInterface.GetBalance(accountId)}");
+                            break;
                         }
                     case CustomerEnum.TransferAmount:
                         {
-                            ReceiverValidateAgain:
-                            string receiverBankId = StandardMessages.GetUserInput("Enter the receiver bankid");
+                        ReceiverValidateAgain:
                             string receiverAccountId = StandardMessages.GetUserInput("enter receiver accountid");
                             decimal amount = StandardMessages.GetUserInputAsDecimal("Enter amount");
-                            string paymentMode = StandardMessages.GetUserInput("Enter payment mode");
+                            string paymentMode = StandardMessages.GetUserInput("Enter the payment mode");
                             try
                             {
-                                serviceInterface.TransferAmount(bankId, accountId, password, amount, receiverBankId, receiverAccountId, paymentMode);
+                                serviceInterface.TransferAmount(accountId, receiverAccountId, amount,paymentMode);
                                 StandardMessages.PrintString("Amount transferred succesfully");
                             }
                             catch (AmountNotSufficient)
                             {
                                 StandardMessages.PrintString("Amount not sufficient");
                             }
-                            catch (IncorrectBankIdException)
-                            {
-                                receiverBankId = StandardMessages.GetUserInput("Incorrect Bank Id entered\nPlease try to re enter bank id");
-                                goto ReceiverValidateAgain;
-                            }
-                            catch (IncorrectPin )
-                            {
-                                accountId = StandardMessages.GetUserInput("Password you have entered is invalid \n Please try to reenter password");
-                                goto ReceiverValidateAgain;
-                            }
-                            catch (IncorrectAccountNumberException )
+                            catch (IncorrectAccountNumberException)
                             {
                                 accountId = StandardMessages.GetUserInput("AccountNumber you have entered is invalid \n Please try to reenter account number");
                                 goto ReceiverValidateAgain;
@@ -91,16 +77,7 @@ namespace BankApplication
 
                     case CustomerEnum.Transactionhistory:
                         {
-                                List<Transaction> transactions = serviceInterface.GetTransactionHistory(bankId, accountId);
-                                foreach (Transaction transaction in transactions)
-                                {
-                                    StandardMessages.PrintString(transaction.TransactionId + " " + transaction.Type);
-                                    if (transaction.Type == TransactionType.Deposit)
-                                        StandardMessages.PrintString("credited+" + transaction.Amount);
-                                    else
-                                        StandardMessages.PrintString("debited- " + transaction.Amount);
-                                    StandardMessages.PrintString("");
-                                }
+                            List<string> Transactions = serviceInterface.TransactionHistory(accountId);
                             break;
                         }
                     case CustomerEnum.Exit:
@@ -117,4 +94,3 @@ namespace BankApplication
         }
     }
 }
-       

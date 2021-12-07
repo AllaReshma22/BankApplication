@@ -10,7 +10,7 @@ namespace BankApplication.Models.Enums
     {
 
         CreateAccount = 1,
-        AddNewAcceptedCurrency,
+        GetBalance,
         UpdateAccount,
         DeleteAccount,
         ViewTransactionHistoryOfAccount,
@@ -19,7 +19,7 @@ namespace BankApplication.Models.Enums
         UpdateSameBankIMPS,
         UpdateOtherBankIMPS,
         RevertTransaction,
-        RevertTransfer,
+        GetAllAccounts,
         Exit
     }
 }

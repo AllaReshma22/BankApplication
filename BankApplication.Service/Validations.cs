@@ -5,34 +5,51 @@ using System.Text;
 using System.Threading.Tasks;
 using BankApplication.Models;
 using BankApplication.Models.Exceptions;
+using BankApplication.Models.Models;
 
 namespace BankApplication.Service
 {
-   public class Validations
+    public class Validations
     {
-        public static bool StaffValidate(string bankId, string staffId)
+        private BankAppContext bankAppContext;
+        public Validations(BankAppContext bankAppContext)
         {
-            var bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
-            if (bank is null)
+            this.bankAppContext = bankAppContext;
+        }
+        public bool StaffValidate(string bankId, string staffId)
+        {
+            var bank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
+            if (bank == null)
+            {
                 throw new IncorrectBankIdException();
+            }
             if (bank.StaffId == staffId)
                 return true;
             else
-                return false;           
+                throw new IncorrectStaffIdException();
         }
-        public  static bool CustomerValidate(string bankId, string accountId,int password)
+        public bool CustomerValidate(string accountId, int password)
         {
-            var bank = Datastore.Banks.SingleOrDefault(m => m.BankId == bankId);
-            if (bank is null)
-                throw new IncorrectBankIdException();
-            var account = bank.AccountsList.SingleOrDefault(m => m.AccountId == accountId);
-            if (account is null)
+            var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            if (account == null)
+            {
                 throw new IncorrectAccountNumberException();
+            }
             if (account.Password == password)
+            {
+                bankAppContext.Accounts.Attach(account);
+                return true;
+            }
+
+            else
+                throw new IncorrectPin();
+        }
+        public static bool PasswordValidate(int password)
+        {
+            if (password > 999 && password < 10000)
                 return true;
             else
-                throw new IncorrectPin();           
+                return false;
         }
     }
 }
-

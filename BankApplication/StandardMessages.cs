@@ -21,7 +21,7 @@ namespace BankApplication
             PrintString("___________________________________");
             PrintString("Enter Your Choice                  ");
             PrintString("1.CreateAccount                    ");
-            PrintString("2.AddNewAcceptedCurrency           ");
+            PrintString("2.ViewAccountBalance               ");
             PrintString("3.Updateaccountpassword           ");
             PrintString("4.Delete Account                  ");
             PrintString("5.ViewTransactionHistoryOfAccount  ");
@@ -30,7 +30,7 @@ namespace BankApplication
             PrintString("8.AddIMPSServiceChargesForSameBank ");
             PrintString("9.AddIMPSServiceChargesForOtherBank");
             PrintString("10.RevertTransaction                ");
-            PrintString("11.Revert Transfer                  ");
+            PrintString("11.Get All Accounts in the bank     ");
             PrintString("12.Exit                             ");
             PrintString("___________________________________");
 
