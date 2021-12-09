@@ -18,6 +18,7 @@ namespace BankApplication
         {
             var bankAppContext = new BankAppContext();
             ICustomerServiceInterface serviceInterface = new CustomerService(bankAppContext);
+            ICommonServiceInterface commonService = new CustomerService(bankAppContext);
             int count = 0;
             while (count == 0)
             {
@@ -77,7 +78,11 @@ namespace BankApplication
 
                     case CustomerEnum.Transactionhistory:
                         {
-                            List<string> Transactions = serviceInterface.TransactionHistory(accountId);
+                            List<string> Transactions = commonService.TransactionHistory(accountId);
+                            for (int i = 0; i < Transactions.Count; i++)
+                            {
+                                StandardMessages.PrintString(Transactions[i]);
+                            }
                             break;
                         }
                     case CustomerEnum.Exit:

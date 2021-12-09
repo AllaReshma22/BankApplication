@@ -11,7 +11,7 @@ namespace BankApplication.Service
 {
     public class Validations
     {
-        private BankAppContext bankAppContext;
+        private readonly BankAppContext bankAppContext;
         public Validations(BankAppContext bankAppContext)
         {
             this.bankAppContext = bankAppContext;

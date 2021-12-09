@@ -19,7 +19,5 @@ namespace BankApplication.Service.Interfaces
         public void UpdateOtherBankRtgs(string bankId, decimal newRtgs);
         public void UpdateOtherBankImps(string bankId, decimal newImps);
         public decimal? GetBalance(string accountId);
-        public  List<string> TransactionHistory(string accountId);
-        public IEnumerable<Account> GetAllAccounts(string bankId);
     }
 }

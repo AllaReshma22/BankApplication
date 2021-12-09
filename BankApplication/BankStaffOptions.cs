@@ -18,6 +18,7 @@ namespace BankApplication
         {
             var bankAppContext = new BankAppContext();
             IBankStaffServiceInterface serviceInterface = new BankStaffService(bankAppContext);
+            ICommonServiceInterface commonService = new BankStaffService(bankAppContext);
             int count = 0;
             while (count == 0)
             {
@@ -28,12 +29,12 @@ namespace BankApplication
                     case StaffEnum.CreateAccount:
                         {
                             string accountHolderName = StandardMessages.GetUserInput("Enter account holder name");
-                            Passwordreenter:
+                            PasswordReenter:
                             int password = StandardMessages.GetUserInputAsInt("Enter 4 digit password for setup:");
                             if (Validations.PasswordValidate(password) == false)
                             { 
                                StandardMessages.PrintString("Password you have entered is not valid,try to reenter password");
-                                goto Passwordreenter;
+                                goto PasswordReenter;
                             }                              
                             decimal balance = StandardMessages.GetUserInputAsDecimal("Enter initial balance");
                             string accountId = serviceInterface.CreateAccount(bankId, accountHolderName, password, balance);
@@ -85,8 +86,10 @@ namespace BankApplication
                     case StaffEnum.DeleteAccount:
                         {
                             string accountId = StandardMessages.GetUserInput("Enter accountid");
-                            serviceInterface.DeleteAccount(accountId);
-                            break;
+                            bool result=serviceInterface.DeleteAccount(accountId);
+                            if (result == true)
+                                StandardMessages.PrintString($"Account with accountId {accountId} has been deleted succesfully ");
+;                            break;
                         }
                     case StaffEnum.GetBalance:
                         {
@@ -94,10 +97,16 @@ namespace BankApplication
                             StandardMessages.PrintString($"{serviceInterface.GetBalance(accountId)}");
                             break;
                         }
-                   /* case StaffEnum.GetAllAccounts:
+                    case StaffEnum.ViewTransactionHistoryOfAccount:
                         {
-                            serviceInterface.GetAllAccounts(bankId);
-                        }*/
+                            string accountId = StandardMessages.GetUserInput("Enter account number");
+                            List<string> Transactions = commonService.TransactionHistory(accountId);
+                            for (int i = 0; i < Transactions.Count; i++)
+                            {
+                                StandardMessages.PrintString(Transactions[i]);
+                            }
+                            break;
+                        }
                     case StaffEnum.Exit:
                         {
                             count = 1;
@@ -105,7 +114,7 @@ namespace BankApplication
                         }
 
                     default:
-                        StandardMessages.PrintString("Enter valid number from 1-12");
+                        StandardMessages.PrintString("Enter valid number from 1-11");
                         break;
                 }
             }

@@ -14,7 +14,7 @@ namespace BankApplication.Service.Interfaces
         public decimal? WithDraw(string accountId, decimal amount);
         public decimal? GetBalance(string accountId);
         public void TransferAmount(string senderAccountId, string receiverAccountId, decimal amount,string paymentMode);
-        public  List<string> TransactionHistory(string accountId);
+
         
     }
 }

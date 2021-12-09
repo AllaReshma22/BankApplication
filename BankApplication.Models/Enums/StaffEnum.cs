@@ -19,7 +19,6 @@ namespace BankApplication.Models.Enums
         UpdateSameBankIMPS,
         UpdateOtherBankIMPS,
         RevertTransaction,
-        GetAllAccounts,
         Exit
     }
 }

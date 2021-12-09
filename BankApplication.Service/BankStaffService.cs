@@ -10,9 +10,9 @@ using BankApplication.Service.Interfaces;
 
 namespace BankApplication.Service
 {
-    public class BankStaffService :IBankStaffServiceInterface
+    public class BankStaffService :IBankStaffServiceInterface,ICommonServiceInterface
     {
-        private BankAppContext bankAppContext;
+        private readonly BankAppContext bankAppContext;
         public BankStaffService(BankAppContext bankAppContext)
         {
             this.bankAppContext = bankAppContext;
@@ -34,9 +34,10 @@ namespace BankApplication.Service
         public string CreateAccount(string bankId, string accountHolderName, int password, decimal initialBal)
         {
             string accountId = accountHolderName.Substring(0, 3) + DateTime.UtcNow.ToString("ddMMyyyy");
-            Account account = new Account(accountId, bankId, accountHolderName, password, initialBal);
+            Account account = new(accountId, bankId, accountHolderName, password, initialBal);
             bankAppContext.Accounts.Add(account);
             bankAppContext.SaveChanges();
+
             return account.AccountId;
         }
         public bool UpdateAccount(string accountId, int newPassword)
@@ -47,14 +48,11 @@ namespace BankApplication.Service
             bankAppContext.SaveChanges();
             return true;
         }
-        public IEnumerable<Account> GetAllAccounts(string bankId)
-        {
-            return bankAppContext.Accounts.Where(m => m.BankId == bankId).ToList();
-        }
         public bool DeleteAccount(string accountId)
         {
             var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
             bankAppContext.Accounts.Remove(account);
+            bankAppContext.SaveChanges();
             return true;
         }
         public void UpdateSameBankRtgs(string bankId, decimal newRtgs)
@@ -92,27 +90,33 @@ namespace BankApplication.Service
             {
                 var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == transaction.SenderAccountId);
                 var account1 = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == transaction.ReceiverAccountId);
-                account.Balance = account.Balance + transaction.Amount;
+                account.Balance+= transaction.Amount;
                 bankAppContext.Accounts.Update(account);
                 bankAppContext.SaveChanges();
-                account1.Balance = account1.Balance - transaction.Amount;
+                account1.Balance-= transaction.Amount;
                 bankAppContext.Accounts.Update(account1);
+                bankAppContext.SaveChanges();
+                bankAppContext.Transactions.Remove(transaction);
                 bankAppContext.SaveChanges();
                 return true;
             }
             if (transaction.TransactionType == "Deposit")
             {
                 var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == transaction.ReceiverAccountId);
-                account.Balance = account.Balance - transaction.Amount;
+                account.Balance -=transaction.Amount;
                 bankAppContext.Accounts.Update(account);
+                bankAppContext.SaveChanges();
+                bankAppContext.Transactions.Remove(transaction);
                 bankAppContext.SaveChanges();
                 return true;
             }
             if (transaction.TransactionType == "WithDraw")
             {
                 var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == transaction.SenderAccountId);
-                account.Balance = account.Balance + transaction.Amount;
+                account.Balance += transaction.Amount;
                 bankAppContext.Accounts.Update(account);
+                bankAppContext.SaveChanges();
+                bankAppContext.Transactions.Remove(transaction);
                 bankAppContext.SaveChanges();
                 return true;
             }
@@ -120,7 +124,7 @@ namespace BankApplication.Service
         }
         public List<string> TransactionHistory(string accountId)
         {
-            List<string> TransactionList = new List<string>();
+            List<string> TransactionList = new();
             foreach (Transaction transaction in bankAppContext.Transactions)
             {
                 if (transaction.SenderAccountId == accountId || transaction.ReceiverAccountId == accountId)

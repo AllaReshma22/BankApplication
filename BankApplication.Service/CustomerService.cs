@@ -12,7 +12,7 @@ namespace BankApplication.Service
 {
     public class CustomerService : ICommonServiceInterface, ICustomerServiceInterface
     {
-        private BankAppContext bankAppContext;
+        private readonly BankAppContext bankAppContext;
         public CustomerService(BankAppContext bankAppContext)
         {
             this.bankAppContext = bankAppContext;
@@ -21,13 +21,14 @@ namespace BankApplication.Service
         public decimal? Deposit(string accountId, decimal amount)
         {
             var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
-            bankAppContext.Update(account);
+          
             account.Balance += amount;
-
+            bankAppContext.Update(account);
             bankAppContext.SaveChanges();
             string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToString("ddMMyyyy") + Transactioncount;
             string TransactionType = "Deposit";
             Transaction transaction = new Transaction(TransactionId, accountId, accountId, amount, TransactionType);
+            Transactioncount++;
             bankAppContext.Transactions.Add(transaction);
             bankAppContext.SaveChanges();
             return account.Balance;
@@ -44,10 +45,10 @@ namespace BankApplication.Service
                 bankAppContext.SaveChanges();
                 string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToString("ddMMyyyy") + Transactioncount;
                 string TransactionType = "WithDraw";
-                Transaction transaction = new Transaction(TransactionId, accountId, accountId, amount, TransactionType);
+                Transaction transaction = new(TransactionId, accountId, accountId, amount, TransactionType);
+                Transactioncount++;
                 bankAppContext.Transactions.Add(transaction);
                 bankAppContext.SaveChanges();
-
             }
             return account.Balance;
         }
@@ -81,7 +82,8 @@ namespace BankApplication.Service
                 bankAppContext.SaveChanges();
                 string TransactionId = "Txn" + senderAccount.BankId + senderAccountId + DateTime.UtcNow.ToString("ddMMyyyy") + Transactioncount;
                 string TransactionType = "Transfer";
-                Transaction transaction = new Transaction(TransactionId, senderAccountId, receiverAccountId, amount, TransactionType);
+                Transaction transaction = new(TransactionId, senderAccountId, receiverAccountId, amount, TransactionType);
+                Transactioncount++;
                 bankAppContext.Transactions.Add(transaction);
                 bankAppContext.SaveChanges();
             }
@@ -98,12 +100,12 @@ namespace BankApplication.Service
         }
         public List<string> TransactionHistory(string accountId)
         {
-            List<string> TransactionList = new List<string>();
+            List<string> TransactionList = new();
             foreach (Transaction transaction in bankAppContext.Transactions)
             {
                 if (transaction.SenderAccountId == accountId || transaction.ReceiverAccountId == accountId)
                 {
-                    string st = transaction.TransactionId + "Type:" + transaction.TransactionType + "Amount:" + transaction.Amount;
+                    string st = transaction.TransactionId + " Type:" + transaction.TransactionType + " Amount:" + transaction.Amount;
                     TransactionList.Add(st);
                 }
             }

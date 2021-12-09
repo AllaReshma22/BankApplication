@@ -30,8 +30,7 @@ namespace BankApplication
             PrintString("8.AddIMPSServiceChargesForSameBank ");
             PrintString("9.AddIMPSServiceChargesForOtherBank");
             PrintString("10.RevertTransaction                ");
-            PrintString("11.Get All Accounts in the bank     ");
-            PrintString("12.Exit                             ");
+            PrintString("11.Exit                             ");
             PrintString("___________________________________");
 
         }
