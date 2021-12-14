@@ -33,7 +33,7 @@ namespace BankApplication.Service
             var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
             if (account == null)
             {
-                throw new IncorrectAccountNumberException();
+                throw new IncorrectAccountIdException();
             }
             if (account.Password == password)
             {
@@ -50,6 +50,7 @@ namespace BankApplication.Service
                 return true;
             else
                 return false;
-        }
-    }
+         }
+    }  
 }
+

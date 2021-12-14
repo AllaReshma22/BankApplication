@@ -68,7 +68,7 @@ namespace BankApplication
                             {
                                 StandardMessages.PrintString("Amount not sufficient");
                             }
-                            catch (IncorrectAccountNumberException)
+                            catch (IncorrectAccountIdException)
                             {
                                 accountId = StandardMessages.GetUserInput("AccountNumber you have entered is invalid \n Please try to reenter account number");
                                 goto ReceiverValidateAgain;

@@ -25,7 +25,7 @@ namespace BankApplication.Service
             account.Balance += amount;
             bankAppContext.Update(account);
             bankAppContext.SaveChanges();
-            string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToString("ddMMyyyy") + Transactioncount;
+            string TransactionId = "Txn" + account.BankId + accountId + ExtensionMethods.DateId() + Transactioncount;
             string TransactionType = "Deposit";
             Transaction transaction = new Transaction(TransactionId, accountId, accountId, amount, TransactionType);
             Transactioncount++;
@@ -43,7 +43,7 @@ namespace BankApplication.Service
                 account.Balance -= amount;
                 bankAppContext.Accounts.Update(account);
                 bankAppContext.SaveChanges();
-                string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToString("ddMMyyyy") + Transactioncount;
+                string TransactionId = "Txn" + account.BankId + accountId + ExtensionMethods.DateId() + Transactioncount;
                 string TransactionType = "WithDraw";
                 Transaction transaction = new(TransactionId, accountId, accountId, amount, TransactionType);
                 Transactioncount++;
@@ -80,7 +80,7 @@ namespace BankApplication.Service
                 receiverAccount.Balance += amount;
                 bankAppContext.Accounts.Update(receiverAccount);
                 bankAppContext.SaveChanges();
-                string TransactionId = "Txn" + senderAccount.BankId + senderAccountId + DateTime.UtcNow.ToString("ddMMyyyy") + Transactioncount;
+                string TransactionId = "Txn" + senderAccount.BankId + senderAccountId + ExtensionMethods.DateId() + Transactioncount;
                 string TransactionType = "Transfer";
                 Transaction transaction = new(TransactionId, senderAccountId, receiverAccountId, amount, TransactionType);
                 Transactioncount++;

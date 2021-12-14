@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankApplication.Models.Exceptions
 {
-    public class IncorrectAccountNumberException : Exception
+    public class IncorrectAccountIdException : Exception
     {
     }
 }

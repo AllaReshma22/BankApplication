@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using BankApplication.Service;
 using System.Threading.Tasks;
 using BankApplication.Models;
 using BankApplication.Models.Exceptions;
@@ -13,6 +13,7 @@ namespace BankApplication.Service
     public class BankStaffService :IBankStaffServiceInterface,ICommonServiceInterface
     {
         private readonly BankAppContext bankAppContext;
+
         public BankStaffService(BankAppContext bankAppContext)
         {
             this.bankAppContext = bankAppContext;
@@ -23,7 +24,7 @@ namespace BankApplication.Service
                 throw new DuplicateBankNameException();
             var bank = new Bank
             {
-                BankId = bankName.Substring(0, 3) + DateTime.UtcNow.ToString("ddMMyyyy"),
+                BankId = bankName.Substring(0, 3) +ExtensionMethods.DateId(),
                 BankName = bankName,
                 StaffId = bankName.Substring(0, 3) + "staff",
             };
@@ -33,7 +34,7 @@ namespace BankApplication.Service
         }
         public string CreateAccount(string bankId, string accountHolderName, int password, decimal initialBal)
         {
-            string accountId = accountHolderName.Substring(0, 3) + DateTime.UtcNow.ToString("ddMMyyyy");
+            string accountId = accountHolderName.Substring(0, 3) + ExtensionMethods.DateId();
             Account account = new(accountId, bankId, accountHolderName, password, initialBal);
             bankAppContext.Accounts.Add(account);
             bankAppContext.SaveChanges();
@@ -43,6 +44,8 @@ namespace BankApplication.Service
         public bool UpdateAccount(string accountId, int newPassword)
         {
             var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            if (account == null)
+                throw new IncorrectAccountIdException();
             account.Password = newPassword;
             bankAppContext.Accounts.Update(account);
             bankAppContext.SaveChanges();
@@ -51,6 +54,8 @@ namespace BankApplication.Service
         public bool DeleteAccount(string accountId)
         {
             var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            if (account == null)
+                throw new IncorrectAccountIdException();
             bankAppContext.Accounts.Remove(account);
             bankAppContext.SaveChanges();
             return true;

@@ -82,7 +82,7 @@ namespace BankApplication
                                     StandardMessages.PrintString("Enter incorrect login credentials");
                             }
 
-                            catch (IncorrectAccountNumberException)
+                            catch (IncorrectAccountIdException)
                             {
                                 accountId = StandardMessages.GetUserInput("AccountNumber you have entered is invalid \n Please try to reenter account number");
                                 goto CustomerValidateAgain;

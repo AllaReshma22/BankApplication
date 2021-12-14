@@ -80,16 +80,30 @@ namespace BankApplication
                         {
                             string accountId = StandardMessages.GetUserInput("Enter account number");
                             int newpassword = StandardMessages.GetUserInputAsInt("Enter new 4 digit password for update");
-                            serviceInterface.UpdateAccountPassword(accountId, newpassword);
+                            try 
+                            {
+                                serviceInterface.UpdateAccountPassword(accountId, newpassword);
+                            }
+                            catch (IncorrectAccountIdException)
+                            {
+                                StandardMessages.PrintString("AccountId you have entered is incorrect");
+                            }
                             break;
                         }
                     case StaffEnum.DeleteAccount:
                         {
                             string accountId = StandardMessages.GetUserInput("Enter accountid");
                             bool result=serviceInterface.DeleteAccount(accountId);
-                            if (result == true)
-                                StandardMessages.PrintString($"Account with accountId {accountId} has been deleted succesfully ");
-;                            break;
+                            try
+                            {
+                                if (result == true)
+                                    StandardMessages.PrintString($"Account with accountId {accountId} has been deleted succesfully ");
+                            }
+                            catch (IncorrectAccountIdException)
+                            {
+                                StandardMessages.PrintString("AccountId you have entered is incorrect");
+                            }
+                            break;
                         }
                     case StaffEnum.GetBalance:
                         {
