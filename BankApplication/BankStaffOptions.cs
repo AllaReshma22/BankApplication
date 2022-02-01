@@ -9,12 +9,11 @@ using BankApplication.Models.Models;
 using BankApplication.Service.Interfaces;
 using BankApplication.Models.Exceptions;
 using BankApplication.Models.Enums;
-
 namespace BankApplication
 {
     public class BankStaffOptions:IGetMenu
     {
-        public void GetMenu(string bankId)
+       public void GetMenu(string bankId)
         {
             var bankAppContext = new BankAppContext();
             IBankStaffServiceInterface serviceInterface = new BankStaffService(bankAppContext);
@@ -82,7 +81,7 @@ namespace BankApplication
                             int newpassword = StandardMessages.GetUserInputAsInt("Enter new 4 digit password for update");
                             try 
                             {
-                                serviceInterface.UpdateAccountPassword(accountId, newpassword);
+                                //serviceInterface.UpdateAccountPassword(accountId, newpassword);
                             }
                             catch (IncorrectAccountIdException)
                             {

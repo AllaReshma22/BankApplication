@@ -18,14 +18,32 @@ namespace BankApplication.Service
             this.bankAppContext = bankAppContext;
         }
         static int Transactioncount = 1;
-        public decimal? Deposit(string accountId, decimal amount)
+        private Account GetAccount(string accountId)
+        {
+            return bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+        }
+        public Account Authenticate(string accountId,int? password)
         {
             var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
-          
+            if (account == null)
+            {
+                throw new IncorrectAccountIdException();
+            }
+            if (account.Password == password)
+            {
+                bankAppContext.Accounts.Attach(account);
+                return account;
+            }
+
+            else
+                throw new IncorrectPin();
+        }
+        public decimal? Deposit(string accountId, decimal amount)
+        {
+            var account = GetAccount(accountId);
             account.Balance += amount;
             bankAppContext.Update(account);
-            bankAppContext.SaveChanges();
-            string TransactionId = "Txn" + account.BankId + accountId + ExtensionMethods.DateId() + Transactioncount;
+            string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToddMMyyyy() + Transactioncount;
             string TransactionType = "Deposit";
             Transaction transaction = new Transaction(TransactionId, accountId, accountId, amount, TransactionType);
             Transactioncount++;
@@ -35,7 +53,7 @@ namespace BankApplication.Service
         }
         public decimal? WithDraw(string accountId, decimal amount)
         {
-            var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            var account =GetAccount(accountId);
             if (account.Balance < amount)
                 throw new AmountNotSufficient();
             else
@@ -43,7 +61,7 @@ namespace BankApplication.Service
                 account.Balance -= amount;
                 bankAppContext.Accounts.Update(account);
                 bankAppContext.SaveChanges();
-                string TransactionId = "Txn" + account.BankId + accountId + ExtensionMethods.DateId() + Transactioncount;
+                string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToddMMyyyy() + Transactioncount;
                 string TransactionType = "WithDraw";
                 Transaction transaction = new(TransactionId, accountId, accountId, amount, TransactionType);
                 Transactioncount++;
@@ -54,9 +72,9 @@ namespace BankApplication.Service
         }
         public void TransferAmount(string senderAccountId, string receiverAccountId, decimal amount,string paymentMode)
         {  
-            var senderAccount = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == senderAccountId);
+            var senderAccount =GetAccount(senderAccountId);
             var senderBank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == senderAccount.BankId);
-            var receiverAccount = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == receiverAccountId);
+            var receiverAccount = GetAccount(receiverAccountId);
             var receiverBank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == receiverAccount.BankId);
             if (senderAccount.Balance > amount)
             {
@@ -76,11 +94,10 @@ namespace BankApplication.Service
 
                 }
                 bankAppContext.Accounts.Update(senderAccount);
-                bankAppContext.SaveChanges();
                 receiverAccount.Balance += amount;
                 bankAppContext.Accounts.Update(receiverAccount);
                 bankAppContext.SaveChanges();
-                string TransactionId = "Txn" + senderAccount.BankId + senderAccountId + ExtensionMethods.DateId() + Transactioncount;
+                string TransactionId = "Txn" + senderAccount.BankId + senderAccountId + DateTime.UtcNow.ToddMMyyyy() + Transactioncount;
                 string TransactionType = "Transfer";
                 Transaction transaction = new(TransactionId, senderAccountId, receiverAccountId, amount, TransactionType);
                 Transactioncount++;
@@ -95,7 +112,7 @@ namespace BankApplication.Service
         }
         public decimal? GetBalance(string accountId)
         {
-            var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            var account =GetAccount(accountId);
             return account.Balance;
         }
         public List<string> TransactionHistory(string accountId)

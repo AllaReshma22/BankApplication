@@ -8,9 +8,9 @@ namespace BankApplication.Service
 {
     public static class ExtensionMethods
     {
-        public static string DateId()
+        public static string ToddMMyyyy(this DateTime date)
         {
-            return DateTime.UtcNow.ToString("ddMMyyyy");
+            return date.ToString("ddMMyyyy");
         }
     }
 }

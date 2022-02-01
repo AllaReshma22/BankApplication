@@ -24,7 +24,7 @@ namespace BankApplication.Service
                 throw new DuplicateBankNameException();
             var bank = new Bank
             {
-                BankId = bankName.Substring(0, 3) +ExtensionMethods.DateId(),
+                BankId = bankName.Substring(0, 3) + DateTime.UtcNow.ToddMMyyyy(),
                 BankName = bankName,
                 StaffId = bankName.Substring(0, 3) + "staff",
             };
@@ -32,28 +32,42 @@ namespace BankApplication.Service
             bankAppContext.SaveChanges();
             return bank.BankId;
         }
-        public string CreateAccount(string bankId, string accountHolderName, int password, decimal initialBal)
+        public string CreateAccount(string bankId,string accountHolderName,int password,decimal initialBal)
         {
-            string accountId = accountHolderName.Substring(0, 3) + ExtensionMethods.DateId();
+            string accountId = accountHolderName[..3] + DateTime.UtcNow.ToddMMyyyy();
             Account account = new(accountId, bankId, accountHolderName, password, initialBal);
             bankAppContext.Accounts.Add(account);
             bankAppContext.SaveChanges();
 
-            return account.AccountId;
+            return accountId;
         }
-        public bool UpdateAccount(string accountId, int newPassword)
+        public Account GetAccount(string accountId)
         {
-            var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            if (accountId == null) throw new IncorrectAccountIdException();
+            return bankAppContext.Accounts.FirstOrDefault(m => (m.AccountId == accountId));
+        }
+        public Bank GetBank(string bankId)
+        {
+            if(bankId==null) throw new IncorrectAccountIdException();
+            return bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
+        }
+        public IEnumerable<Account> GetAllAccounts()
+        {
+            return bankAppContext.Accounts.ToList();
+        }
+        public Account UpdateAccount(Account account,string accountId, int newPassword)
+        {
+            account = GetAccount(accountId);
             if (account == null)
                 throw new IncorrectAccountIdException();
             account.Password = newPassword;
             bankAppContext.Accounts.Update(account);
             bankAppContext.SaveChanges();
-            return true;
+            return account;
         }
         public bool DeleteAccount(string accountId)
         {
-            var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            var account = GetAccount(accountId);
             if (account == null)
                 throw new IncorrectAccountIdException();
             bankAppContext.Accounts.Remove(account);
@@ -62,28 +76,28 @@ namespace BankApplication.Service
         }
         public void UpdateSameBankRtgs(string bankId, decimal newRtgs)
         {
-            var bank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
+            var bank = GetBank(bankId);
             bank.SameBankRtgsCharges = newRtgs;
             bankAppContext.Banks.Update(bank);
             bankAppContext.SaveChanges();
         }
         public void UpdateSameBankImps(string bankId, decimal newImps)
         {
-            var bank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
+            var bank = GetBank  (bankId);
             bank.SameBankImpsCharges = newImps;
             bankAppContext.Banks.Update(bank);
             bankAppContext.SaveChanges();
         }
         public void UpdateOtherBankRtgs(string bankId, decimal newRtgs)
         {
-            var bank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
+            var bank =GetBank(bankId);
             bank.OtherBankRtgsCharges = newRtgs;
             bankAppContext.Banks.Update(bank);
             bankAppContext.SaveChanges();
         }
         public void UpdateOtherBankImps(string bankId, decimal newImps)
         {
-            var bank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
+            var bank = GetBank(bankId);
             bank.OtherBankRtgsCharges = newImps;
             bankAppContext.Banks.Update(bank);
             bankAppContext.SaveChanges();
@@ -142,16 +156,16 @@ namespace BankApplication.Service
         }
         public decimal? GetBalance(string accountId)
         {
-            var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            var account = GetAccount(accountId);
             return account.Balance;
         }
-        public bool UpdateAccountPassword(string accountId,int newPassword)
+        public Account UpdateAccountPassword(Account account,string accountId,int? newPassword)
         {
-            var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
+            account = GetAccount(accountId);
             account.Password = newPassword;
             bankAppContext.Accounts.Update(account);
             bankAppContext.SaveChanges();
-            return true;
+            return account;
         }
 
 
