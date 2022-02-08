@@ -18,11 +18,11 @@ namespace BankApplication.Service
             this.bankAppContext = bankAppContext;
         }
         static int Transactioncount = 1;
-        private Account GetAccount(string accountId)
+        public Account GetAccount(string accountId)
         {
             return bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
         }
-        public Account Authenticate(string accountId,int? password)
+        public bool Authenticate(string accountId,int? password)
         {
             var account = bankAppContext.Accounts.FirstOrDefault(m => m.AccountId == accountId);
             if (account == null)
@@ -32,7 +32,7 @@ namespace BankApplication.Service
             if (account.Password == password)
             {
                 bankAppContext.Accounts.Attach(account);
-                return account;
+                return true;
             }
 
             else
@@ -41,15 +41,20 @@ namespace BankApplication.Service
         public decimal? Deposit(string accountId, decimal amount)
         {
             var account = GetAccount(accountId);
-            account.Balance += amount;
-            bankAppContext.Update(account);
-            string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToddMMyyyy() + Transactioncount;
-            string TransactionType = "Deposit";
-            Transaction transaction = new Transaction(TransactionId, accountId, accountId, amount, TransactionType);
-            Transactioncount++;
-            bankAppContext.Transactions.Add(transaction);
-            bankAppContext.SaveChanges();
-            return account.Balance;
+            if (account == null)
+                throw new IncorrectAccountIdException();
+            else
+            {
+                account.Balance += amount;
+                bankAppContext.Update(account);
+                string TransactionId = "Txn" + account.BankId + accountId + DateTime.UtcNow.ToddMMyyyy() + Transactioncount;
+                string TransactionType = "Deposit";
+                Transaction transaction = new Transaction(TransactionId, accountId, accountId, amount, TransactionType);
+                Transactioncount++;
+                bankAppContext.Transactions.Add(transaction);
+                bankAppContext.SaveChanges();
+                return account.Balance;
+            }
         }
         public decimal? WithDraw(string accountId, decimal amount)
         {
@@ -70,7 +75,7 @@ namespace BankApplication.Service
             }
             return account.Balance;
         }
-        public void TransferAmount(string senderAccountId, string receiverAccountId, decimal amount,string paymentMode)
+        public string TransferAmount(string senderAccountId, string receiverAccountId, decimal amount,string paymentMode)
         {  
             var senderAccount =GetAccount(senderAccountId);
             var senderBank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == senderAccount.BankId);
@@ -103,6 +108,7 @@ namespace BankApplication.Service
                 Transactioncount++;
                 bankAppContext.Transactions.Add(transaction);
                 bankAppContext.SaveChanges();
+                return TransactionId;
             }
             else
             {
@@ -114,6 +120,10 @@ namespace BankApplication.Service
         {
             var account =GetAccount(accountId);
             return account.Balance;
+        }
+        public Transaction GetTransaction(string transactionId)
+        {
+            return bankAppContext.Transactions.FirstOrDefault(m => m.TransactionId == transactionId);
         }
         public List<string> TransactionHistory(string accountId)
         {

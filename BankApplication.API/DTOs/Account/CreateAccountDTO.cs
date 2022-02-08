@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace BankApplication.API.DTOs.BankStaff
+namespace BankApplication.API.DTOs.Bank
 {
     public class CreateAccountDTO
     {

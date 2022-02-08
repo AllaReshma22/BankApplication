@@ -36,6 +36,7 @@ namespace BankApplication
                                 goto PasswordReenter;
                             }                              
                             decimal balance = StandardMessages.GetUserInputAsDecimal("Enter initial balance");
+    
                             string accountId = serviceInterface.CreateAccount(bankId, accountHolderName, password, balance);
                             StandardMessages.PrintString($"Account created succesfully in bank with accountnumber {accountId} in bank with bankid {bankId}");
                             break;
@@ -81,7 +82,7 @@ namespace BankApplication
                             int newpassword = StandardMessages.GetUserInputAsInt("Enter new 4 digit password for update");
                             try 
                             {
-                                //serviceInterface.UpdateAccountPassword(accountId, newpassword);
+                                serviceInterface.UpdateAccountPassword(accountId, newpassword);
                             }
                             catch (IncorrectAccountIdException)
                             {

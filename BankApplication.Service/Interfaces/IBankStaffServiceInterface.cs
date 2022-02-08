@@ -12,10 +12,10 @@ namespace BankApplication.Service.Interfaces
         public string CreateAccount(string bankId, string accountHolderName, int password, decimal initialbal);
         public Account GetAccount(string accountId);
         public Bank GetBank(string bankId);
-
+        public bool AuthenticateStaff(string bankId,string staffId);
         public bool DeleteAccount(string accountId);
         public string AddBank(string bankName);
-        public Account UpdateAccountPassword(Account account,string accountId, int? newPassword);
+        public bool UpdateAccountPassword(string accountId, int? newPassword);
         public bool RevertTransaction(string transactionId);
         public void UpdateSameBankRtgs(string bankId, decimal newRtgs);
         public void UpdateSameBankImps(string bankId, decimal newImps);

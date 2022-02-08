@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using BankApplication.API.DTOs.BankStaff;
-using BankApplication.API.DTOs.Customer;
+using BankApplication.API.DTOs.Bank;
+using BankApplication.API.DTOs.Account;
 using BankApplication.Models.Models;
 
 namespace BankApplication.API.Profiles
@@ -10,7 +10,10 @@ namespace BankApplication.API.Profiles
         public AutoMapperProfiles()
         {
             CreateMap<CreateBankDTO, Bank>();
-            CreateMap<UpdateBankDTO, Bank>();
+            CreateMap<UpdateSameBankRTGSDTO, Bank>();
+            CreateMap<UpdateSameBankIMPSDTO, Bank>();
+            CreateMap<UpdateOtherBankIMPSDTO, Bank>();
+            CreateMap<UpdateOtherBankRTGSDTO, Bank>();
             CreateMap<AuthenticateStaffDTO, Bank>();
             CreateMap<Bank,GetBankDTO>();
             CreateMap<CreateAccountDTO, Account>();

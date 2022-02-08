@@ -32,8 +32,21 @@ namespace BankApplication.Service
             bankAppContext.SaveChanges();
             return bank.BankId;
         }
+        public bool AuthenticateStaff(string bankId, string staffId)
+        {
+            var bank = bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
+            if (bank == null)
+            {
+                throw new IncorrectBankIdException();
+            }
+            if (bank.StaffId == staffId)
+                return true;
+            else
+                throw new IncorrectStaffIdException();
+        }
         public string CreateAccount(string bankId,string accountHolderName,int password,decimal initialBal)
         {
+
             string accountId = accountHolderName[..3] + DateTime.UtcNow.ToddMMyyyy();
             Account account = new(accountId, bankId, accountHolderName, password, initialBal);
             bankAppContext.Accounts.Add(account);
@@ -159,13 +172,13 @@ namespace BankApplication.Service
             var account = GetAccount(accountId);
             return account.Balance;
         }
-        public Account UpdateAccountPassword(Account account,string accountId,int? newPassword)
+        public bool UpdateAccountPassword(string accountId,int? newPassword)
         {
-            account = GetAccount(accountId);
+            var account = GetAccount(accountId);
             account.Password = newPassword;
             bankAppContext.Accounts.Update(account);
             bankAppContext.SaveChanges();
-            return account;
+            return true;
         }
 
 

@@ -1,4 +1,4 @@
-﻿namespace BankApplication.API.DTOs.BankStaff
+﻿namespace BankApplication.API.DTOs.Account
 {
     public class GetAccountDTO
     {

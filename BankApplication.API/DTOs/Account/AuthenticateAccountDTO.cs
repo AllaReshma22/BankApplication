@@ -1,4 +1,4 @@
-﻿namespace BankApplication.API.DTOs.Customer
+﻿namespace BankApplication.API.DTOs.Account
 {
     public class AuthenticateAccountDTO
     {

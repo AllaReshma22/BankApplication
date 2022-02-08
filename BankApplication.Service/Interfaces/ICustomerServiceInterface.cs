@@ -11,12 +11,13 @@ namespace BankApplication.Service.Interfaces
    public  interface ICustomerServiceInterface
    {
         public decimal? Deposit(string accountId, decimal amount);
-        public Account Authenticate(string accountId,int? password);
+        public bool Authenticate(string accountId,int? password);
+        public  Account GetAccount(string accountId);
         
         public decimal? WithDraw(string accountId, decimal amount);
         public decimal? GetBalance(string accountId);
-        public void TransferAmount(string senderAccountId, string receiverAccountId, decimal amount,string paymentMode);
-
-        
+        public string TransferAmount(string senderAccountId, string receiverAccountId, decimal amount,string paymentMode);
+        public Transaction GetTransaction(string transactionId);
+        public List<string> TransactionHistory(string accountId);
     }
 }
