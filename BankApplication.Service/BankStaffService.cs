@@ -61,7 +61,7 @@ namespace BankApplication.Service
         }
         public Bank GetBank(string bankId)
         {
-            if(bankId==null) throw new IncorrectAccountIdException();
+            if(bankId==null) throw new IncorrectBankIdException();
             return bankAppContext.Banks.FirstOrDefault(m => m.BankId == bankId);
         }
         public IEnumerable<Account> GetAllAccounts()

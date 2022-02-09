@@ -4,6 +4,7 @@ using BankApplication.Models.Models;
 using BankApplication.Service.Interfaces;
 using AutoMapper;
 using BankApplication.API.DTOs.Account;
+using BankApplication.Models.Exceptions;
 namespace BankApplication.API.Controllers
 {
     [Route("api/[controller]")]
@@ -20,13 +21,20 @@ namespace BankApplication.API.Controllers
         [HttpGet("Id")]
         public IActionResult GetAccount(string accountId,int? password)
         {
-            if (customerService.Authenticate(accountId, password))
+            try
             {
+                customerService.Authenticate(accountId, password);
                 Account account = customerService.GetAccount(accountId);
                 return Ok(mapper.Map<GetAccountDTO>(account));
             }
-            else
+            catch (IncorrectPin) 
+            {
                 return BadRequest("Enter a valid password");
+            }
+            catch (IncorrectAccountIdException) 
+            {
+                return BadRequest("Enter correct account id");
+            }
         }
         [HttpPut("Deposit")]
         public IActionResult Deposit(DepositorWithdrawAmountDTO depositorWithdrawAmountDTO)
@@ -39,9 +47,16 @@ namespace BankApplication.API.Controllers
         [HttpPut("Withdraw")]
         public IActionResult withdraw(DepositorWithdrawAmountDTO depositorWithdrawAmountDTO)
         {
-            decimal? balance = customerService.WithDraw(depositorWithdrawAmountDTO.AccountId, depositorWithdrawAmountDTO.Amount);
-            Account account = customerService.GetAccount(depositorWithdrawAmountDTO.AccountId);
-            return Ok(mapper.Map<GetAccountDTO>(account));
+            try
+            {
+                decimal? balance = customerService.WithDraw(depositorWithdrawAmountDTO.AccountId, depositorWithdrawAmountDTO.Amount);
+                Account account = customerService.GetAccount(depositorWithdrawAmountDTO.AccountId);
+                return Ok(mapper.Map<GetAccountDTO>(account));
+            }
+            catch (AmountNotSufficient)
+            {
+                return BadRequest("Amount not sufficient");
+            }
 
         }
         [HttpPost("Transfer")]
@@ -55,7 +70,7 @@ namespace BankApplication.API.Controllers
         {
             return Ok(customerService.GetBalance(accountId));
         }
-        [HttpGet("Get Transactions")]
+        [HttpGet("GetTransactions")]
         public IActionResult GetTransactions(string accountId)
         {
             var transactionsList=customerService.TransactionHistory(accountId);

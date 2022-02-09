@@ -5,6 +5,7 @@ using BankApplication.Models.Models;
 using AutoMapper;
 using BankApplication.API.DTOs.Bank;
 using BankApplication.API.DTOs.Account;
+using BankApplication.Models.Exceptions;
 
 namespace BankApplication.API.Controllers
 {
@@ -20,15 +21,24 @@ namespace BankApplication.API.Controllers
             this.bankStaffService = bankStaffService;
             this.mapper = mapper;
         }
-        [HttpGet("stafflogin")]
+        [HttpGet("StaffLogin")]
         public IActionResult AuthenticateStaff(AuthenticateStaffDTO authenticateStaffDTO)
         {
-            if (bankStaffService.AuthenticateStaff(authenticateStaffDTO.BankId, authenticateStaffDTO.StaffId))
+            try
+            {
+                bankStaffService.AuthenticateStaff(authenticateStaffDTO.BankId, authenticateStaffDTO.StaffId);
                 return Ok("Logged in succesfully");
-            else
+            }
+            catch (IncorrectBankIdException)
+            {
+                return BadRequest("Enter a valid bankId");
+            }
+            catch (IncorrectStaffIdException)
+            {
                 return BadRequest("Enter a valid staffId");
+            }
         }
-        [HttpPost("register_new_account")]
+        [HttpPost("RegisterNewAccount")]
         public IActionResult RegisterNewAccount(string bankId, [FromBody] CreateAccountDTO newAccount)
         {
             if (!ModelState.IsValid) return BadRequest(newAccount);
@@ -38,24 +48,55 @@ namespace BankApplication.API.Controllers
             var accDTO = mapper.Map<GetAccountDTO>(account);
             return Ok(accDTO);
         }
-        [HttpGet("get_account_by_number")]
+        [HttpGet("GetBank")]
+        public IActionResult GetBank(string BankId)
+        {
+            try
+            {
+                var bank=bankStaffService.GetBank(BankId);
+                var bankDTO=mapper.Map<GetBankDTO>(bank);   
+                return Ok(bankDTO);
+            }
+            catch (IncorrectBankIdException)
+            {
+                return BadRequest("Enter a valid bankId");
+            }
+        }
+        
+        
+        
+        [HttpGet("GetAccountByNumber")]
         public IActionResult GetAccount(string AccountId)
         {
-            var account = bankStaffService.GetAccount(AccountId);
-            var accDTO = mapper.Map<GetAccountDTO>(account);
-            return Ok(accDTO);
+            try
+            {
+                var account = bankStaffService.GetAccount(AccountId);
+                var accDTO = mapper.Map<GetAccountDTO>(account);
+                return Ok(accDTO);
+            }
+            catch(IncorrectAccountIdException)
+            {
+                return BadRequest("Enter a valid Account Id");
+            }
         }
-        [HttpPost("update_account")]
+        [HttpPost("UpdateAccount")]
         public IActionResult UpdateAccount([FromBody] UpdateAccountDTO dTO)
         {
-            if (!ModelState.IsValid) return BadRequest(dTO);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(dTO);
                 bankStaffService.UpdateAccountPassword(dTO.AccountId, dTO.Password);
                 var account = bankStaffService.GetAccount(dTO.AccountId);
                 var accDTO = mapper.Map<GetAccountDTO>(account);
                 return Ok(accDTO);
+            }
+            catch (IncorrectAccountIdException)
+            {
+                return BadRequest("Enter a valid Account Id");
+            }
        
         }
-        [HttpPut("Update same bank RTGS")]
+        [HttpPut("UpdateSameBankRTGS")]
         public IActionResult UpdateSameBankRTGS(string bankId, UpdateSameBankRTGSDTO updateBankDTO)
         {
             if (!ModelState.IsValid) return BadRequest(updateBankDTO);
@@ -64,7 +105,7 @@ namespace BankApplication.API.Controllers
             return Ok(mapper.Map<GetBankDTO>(bank));
 
         }
-        [HttpPut("Update same bank IMPS")]
+        [HttpPut("UpdateSameBankIMPS")]
         public IActionResult UpdateSameBankIMPS(string bankId, UpdateSameBankIMPSDTO updateBankDTO)
         {
             if (!ModelState.IsValid) return BadRequest(updateBankDTO);
@@ -72,7 +113,7 @@ namespace BankApplication.API.Controllers
             var bank = bankStaffService.GetBank(bankId);
             return Ok(mapper.Map<GetBankDTO>(bank));
         }
-        [HttpPut("Update other bank IMPS")]
+        [HttpPut("UpdateOtherBankIMPS")]
         public IActionResult UpdateOtherBankIMPS(string bankId, UpdateOtherBankIMPSDTO updateBankDTO)
         {
             if (!ModelState.IsValid) return BadRequest(updateBankDTO);
@@ -80,7 +121,7 @@ namespace BankApplication.API.Controllers
             var bank = bankStaffService.GetBank(bankId);
             return Ok(mapper.Map<GetBankDTO>(bank));
         }
-        [HttpPut("Update other bank RTGS")]
+        [HttpPut("UpdateOtherBankRTGS")]
         public IActionResult UpdateOtherBankRTGS(string bankId, UpdateOtherBankRTGSDTO updateBankDTO)
         {
             if (!ModelState.IsValid) return BadRequest(updateBankDTO);
@@ -88,7 +129,7 @@ namespace BankApplication.API.Controllers
             var bank = bankStaffService.GetBank(bankId);
             return Ok(mapper.Map<GetBankDTO>(bank));
         }
-        [HttpPut("Revert transaction")]
+        [HttpPut("RevertTransaction")]
         public IActionResult RevertTransaction(string transactionId, [FromBody] AuthenticateStaffDTO authenticateStaffDTO)
         {
             if (bankStaffService.RevertTransaction(transactionId))
